@@ -1,0 +1,65 @@
+# Dependencies
+node_modules
+
+# Next.js
+.next
+out
+
+# Build
+dist
+build
+
+# Package manager
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+
+# Coverage
+coverage
+
+# Generated files
+*.min.js
+*.min.css
+
+# Cache
+.cache
+.turbo
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Public assets (optional)
+public
+
+# Generated types
+next-env.d.ts
+
+# Images (optional)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+
+# Archives
+*.zip
+*.tar
+*.gz
