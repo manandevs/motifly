@@ -43,11 +43,11 @@ export default function ImageItem({ index, image, previewUrl, isSelected, onComp
 
           <div className="flex gap-2">
             <Button size="sm" variant={isSelected ? "default" : "secondary"} onClick={() => onCompress(image)}>
-            Compress
-          </Button>
-          <Button size="icon" variant="destructive" onClick={() => onDelete(index)}>
-            <LucideTrash size={24} />
-          </Button>
+              Compress
+            </Button>
+            <Button size="icon" variant="destructive" onClick={() => onDelete(index)}>
+              <LucideTrash size={24} />
+            </Button>
           </div>
         </div>
       </div>

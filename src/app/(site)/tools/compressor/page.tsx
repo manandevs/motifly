@@ -33,49 +33,49 @@ export default function CompressorPage() {
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
 
   // Load from DB
-const loadImagesFromDB = useCallback(async (newFile?: File) => {
-  const files = await getImages();
-  setImages(files);
+  const loadImagesFromDB = useCallback(async (newFile?: File) => {
+    const files = await getImages();
+    setImages(files);
 
-  if (!files.length) {
-    setSelectedImage(null);
-    return;
-  }
-
-  // 1. Priority: If a file was passed directly (via Settings upload)
-  if (newFile) {
-    setSelectedImage(newFile);
-    return;
-  }
-
-  // 2. Secondary: Check if we just came from the Home page (sessionStorage)
-  const savedIndex = sessionStorage.getItem("selected-image-index");
-  
-  if (savedIndex !== null) {
-    const index = Number(savedIndex);
-    // Clear it immediately so it doesn't reset selection on every refresh
-    sessionStorage.removeItem("selected-image-index");
-
-    if (!Number.isNaN(index) && files[index]) {
-      setSelectedImage(files[index]);
+    if (!files.length) {
+      setSelectedImage(null);
       return;
     }
-  }
 
-  // 3. Fallback: Keep current selection or default to the first image
-  setSelectedImage((prev) => {
-    // If we already have a selection that still exists in the new file list, keep it
-    if (prev && files.some(f => f.name === prev.name && f.size === prev.size)) {
-      return prev;
+    // 1. Priority: If a file was passed directly (via Settings upload)
+    if (newFile) {
+      setSelectedImage(newFile);
+      return;
     }
-    return files[0];
-  });
-}, []);
 
-// Ensure initial load calls the updated function
-useEffect(() => {
-  loadImagesFromDB();
-}, [loadImagesFromDB]);
+    // 2. Secondary: Check if we just came from the Home page (sessionStorage)
+    const savedIndex = sessionStorage.getItem("selected-image-index");
+
+    if (savedIndex !== null) {
+      const index = Number(savedIndex);
+      // Clear it immediately so it doesn't reset selection on every refresh
+      sessionStorage.removeItem("selected-image-index");
+
+      if (!Number.isNaN(index) && files[index]) {
+        setSelectedImage(files[index]);
+        return;
+      }
+    }
+
+    // 3. Fallback: Keep current selection or default to the first image
+    setSelectedImage((prev) => {
+      // If we already have a selection that still exists in the new file list, keep it
+      if (prev && files.some((f) => f.name === prev.name && f.size === prev.size)) {
+        return prev;
+      }
+      return files[0];
+    });
+  }, []);
+
+  // Ensure initial load calls the updated function
+  useEffect(() => {
+    loadImagesFromDB();
+  }, [loadImagesFromDB]);
 
   // Handle previews for the list
   const listPreviewUrls = useMemo(() => images.map((file) => URL.createObjectURL(file)), [images]);

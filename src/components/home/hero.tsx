@@ -14,31 +14,31 @@ export function Hero() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
-// Inside Hero.tsx -> uploadImages function
+  // Inside Hero.tsx -> uploadImages function
 
-const uploadImages = async (files: File[]) => {
-  if (!files.length) return;
+  const uploadImages = async (files: File[]) => {
+    if (!files.length) return;
 
-  const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-  if (!imageFiles.length) return;
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    if (!imageFiles.length) return;
 
-  try {
-    // 1. Get current images to find the next starting index
-    const existingImages = await getImages();
-    const startIndex = existingImages.length;
+    try {
+      // 1. Get current images to find the next starting index
+      const existingImages = await getImages();
+      const startIndex = existingImages.length;
 
-    // 2. Save the new images
-    await saveImages(imageFiles);
+      // 2. Save the new images
+      await saveImages(imageFiles);
 
-    // 3. Store the index in sessionStorage so the Compressor page knows which one to pick
-    sessionStorage.setItem("selected-image-index", startIndex.toString());
+      // 3. Store the index in sessionStorage so the Compressor page knows which one to pick
+      sessionStorage.setItem("selected-image-index", startIndex.toString());
 
-    // 4. Redirect
-    router.push("/compressor");
-  } catch (error) {
-    console.error("Upload failed:", error);
-  }
-};
+      // 4. Redirect
+      router.push("/compressor");
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);

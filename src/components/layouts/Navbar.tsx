@@ -14,12 +14,8 @@ import {
 
 const navItems = [
   {
-    label: "Features",
-    href: "/#features",
-  },
-  {
-    label: "Pricing",
-    href: "/pricing",
+    label: "Blog",
+    href: "/blog",
   },
   {
     label: "Legal",
@@ -68,7 +64,7 @@ export function Navbar() {
           </NavigationMenu>
 
           <Button asChild>
-            <Link href="/tools" className="cursor-pointer">
+            <Link href="/compressor" className="cursor-pointer">
               Get Started
             </Link>
           </Button>
@@ -97,7 +93,7 @@ export function Navbar() {
                 ))}
 
                 <Button asChild className="mt-2 w-full">
-                  <Link href="/tools" className="cursor-pointer">
+                  <Link href="/compressor" className="cursor-pointer">
                     Get Started
                   </Link>
                 </Button>

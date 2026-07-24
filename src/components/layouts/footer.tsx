@@ -5,38 +5,18 @@ import { LinkedInIcon, XIcon } from "@/components/shared/icons";
 
 const links = [
   {
-    title: "Company",
-    links: [
-      {
-        label: "AI Tools",
-        href: "/tools",
-        title: "Explore our AI tools",
-      },
-      {
-        label: "Features",
-        href: "/#features",
-        title: "Explore our features",
-      },
-      {
-        label: "Pricing",
-        href: "/pricing",
-        title: "View pricing",
-      },
-    ],
-  },
-  {
     title: "Tools",
     links: [
       {
-        label: "Image Tools",
-        href: "/tools/images",
-        title: "AI image editing tools",
+        label: "Image Compressor",
+        href: "/compressor",
+        title: "Compressor image",
       },
-      {
-        label: "Video Tools",
-        href: "/tools/videos",
-        title: "AI video editing tools",
-      },
+      // {
+      //   label: "Video Tools",
+      //   href: "/tools/videos",
+      //   title: "AI video editing tools",
+      // },
       {
         label: "Blog",
         href: "/blog",

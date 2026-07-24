@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Hero } from "@/components/home/hero";
 import { Showcase } from "@/components/home/showcase";
 import { Testimonials } from "@/components/home/testimonials";
