@@ -42,18 +42,18 @@ export default function Preview({
   isCompressing = false,
 }: PreviewProps) {
   return (
-    <div className="bg-background flex flex-col gap-4 rounded-lg border p-6">
+    <div className="bg-background flex flex-col gap-4 rounded-lg border p-4 sm:p-6">
       <div>
         <h2 className="text-lg font-semibold">Image Preview</h2>
 
         <p className="text-muted-foreground text-sm">Compare the original and compressed image.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 grid-cols-2">
         {/* Original */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium">Original</h3>
+            <h3 className="font-medium hidden sm:block">Original</h3>
 
             <span className="text-muted-foreground text-sm">{formatSize(originalSize)}</span>
           </div>
@@ -74,7 +74,7 @@ export default function Preview({
         {/* Compressed */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium">Compressed</h3>
+            <h3 className="font-medium hidden sm:block">Compressed</h3>
 
             <span className="text-sm font-medium text-green-600">{formatSize(compressedSize)}</span>
           </div>

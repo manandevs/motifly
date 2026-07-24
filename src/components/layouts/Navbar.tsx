@@ -11,6 +11,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   {
@@ -18,12 +19,17 @@ const navItems = [
     href: "/blog",
   },
   {
-    label: "Legal",
-    href: "/terms-and-conditions",
+    label: "Privacy",
+    href: "/legal/privacy-policy",
+  },
+  {
+    label: "Terms",
+    href: "/legal/terms-and-conditions",
   },
 ];
 
 export function Navbar() {
+  const router = useRouter();
   return (
     <header
       className="pointer-events-none fixed top-0 z-30 w-full select-none"
@@ -50,23 +56,23 @@ export function Navbar() {
             <NavigationMenuList className="gap-6">
               {navItems.map((item) => (
                 <NavigationMenuItem key={item.href}>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href={item.href}
-                      className="hover:text-primary cursor-pointer text-sm font-medium transition-colors"
-                    >
-                      {item.label}
-                    </Link>
+                  <NavigationMenuLink
+                    href={item.href}
+                    className="hover:text-primary cursor-pointer text-sm font-medium transition-colors"
+                  >
+                    {item.label}
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
             </NavigationMenuList>
           </NavigationMenu>
 
-          <Button asChild>
-            <Link href="/compressor" className="cursor-pointer">
-              Get Started
-            </Link>
+          <Button
+            onClick={() => {
+              router.push("/tools/compressor");
+            }}
+          >
+            Get Started
           </Button>
         </div>
 
@@ -92,10 +98,13 @@ export function Navbar() {
                   </Link>
                 ))}
 
-                <Button asChild className="mt-2 w-full">
-                  <Link href="/compressor" className="cursor-pointer">
-                    Get Started
-                  </Link>
+                <Button
+                  className="mt-2 w-full"
+                  onClick={() => {
+                    router.push("/tools/compressor");
+                  }}
+                >
+                  Get Started
                 </Button>
               </div>
             </DrawerContent>

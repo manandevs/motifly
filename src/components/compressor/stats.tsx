@@ -26,17 +26,17 @@ const formatFileSize = (bytes: number) => {
 
 const Stats = ({ quality, outputFormat, resize, originalSize, compressedSize, savings }: StatsProps) => {
   return (
-    <div className="bg-background flex flex-col gap-5 rounded-lg border p-6">
+    <div className="bg-background flex flex-col gap-4 rounded-lg border p-4">
       <h2 className="text-lg font-semibold">Compression Summary</h2>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-lg border p-3">
+        <div className="rounded-lg border p-2">
           <p className="text-muted-foreground text-xs">Original Size</p>
 
           <p className="mt-1 text-lg font-semibold">{formatFileSize(originalSize ?? 0)}</p>
         </div>
 
-        <div className="rounded-lg border p-3">
+        <div className="rounded-lg border p-2">
           <p className="text-muted-foreground text-xs">Compressed Size</p>
 
           <p className="mt-1 text-lg font-semibold text-green-600">{formatFileSize(compressedSize ?? 0)}</p>

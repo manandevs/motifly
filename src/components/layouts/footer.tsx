@@ -9,14 +9,9 @@ const links = [
     links: [
       {
         label: "Image Compressor",
-        href: "/compressor",
-        title: "Compressor image",
+        href: "/tools/compressor",
+        title: "Compress images online",
       },
-      // {
-      //   label: "Video Tools",
-      //   href: "/tools/videos",
-      //   title: "AI video editing tools",
-      // },
       {
         label: "Blog",
         href: "/blog",
@@ -25,22 +20,17 @@ const links = [
     ],
   },
   {
-    title: "Resources",
+    title: "Legal",
     links: [
       {
-        label: "Terms & Conditions",
-        href: "/terms-and-conditions",
-        title: "Read our Terms & Conditions",
-      },
-      {
         label: "Privacy Policy",
-        href: "/privacy-policy",
+        href: "/legal/privacy-policy",
         title: "Read our Privacy Policy",
       },
       {
-        label: "Contact",
-        href: "/contact",
-        title: "Contact our team",
+        label: "Terms & Conditions",
+        href: "/legal/terms-and-conditions",
+        title: "Read our Terms & Conditions",
       },
     ],
   },

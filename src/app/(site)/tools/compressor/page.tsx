@@ -171,7 +171,7 @@ export default function CompressorPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-32">
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-4 lg:col-span-2">
           <Preview
             originalImage={selectedOriginalUrl}
             compressedImage={compressedResult?.url}
@@ -184,7 +184,7 @@ export default function CompressorPage() {
             isCompressing={isCompressing}
           />
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="hidden md:grid gap-3 grid-cols-2">
             {images.map((img, i) => (
               <ImageItem
                 key={i}
@@ -225,6 +225,20 @@ export default function CompressorPage() {
             }
           />
         </div>
+
+          <div className="md:hidden grid grid-cols-1 gap-3">
+            {images.map((img, i) => (
+              <ImageItem
+                key={i}
+                index={i}
+                image={img}
+                previewUrl={listPreviewUrls[i]}
+                isSelected={selectedImage === img}
+                onCompress={setSelectedImage}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
       </div>
     </div>
   );

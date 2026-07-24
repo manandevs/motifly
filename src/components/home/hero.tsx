@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 
-import { Pill } from "@/components/ui/pill";
 import { Button } from "@/components/ui/button";
+import { Pill } from "@/components/ui/pill";
 
 import { getImages, saveImages } from "@/lib/image-db";
 
@@ -13,27 +13,26 @@ export function Hero() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Inside Hero.tsx -> uploadImages function
-
   const uploadImages = async (files: File[]) => {
     if (!files.length) return;
 
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
     if (!imageFiles.length) return;
 
     try {
-      // 1. Get current images to find the next starting index
+      // Get the current images to determine the selected index
       const existingImages = await getImages();
       const startIndex = existingImages.length;
 
-      // 2. Save the new images
+      // Save uploaded images
       await saveImages(imageFiles);
 
-      // 3. Store the index in sessionStorage so the Compressor page knows which one to pick
+      // Store the selected image index for the compressor page
       sessionStorage.setItem("selected-image-index", startIndex.toString());
 
-      // 4. Redirect
-      router.push("/compressor");
+      // Navigate to the compressor tool
+      router.push("/tools/compressor");
     } catch (error) {
       console.error("Upload failed:", error);
     }
@@ -63,16 +62,17 @@ export function Hero() {
   };
 
   return (
-    <div className="z-1 w-full">
+    <section className="z-10 w-full">
       <div className="mx-auto w-full max-w-7xl px-4">
-        <div className="grid items-center gap-4 pt-24 md:grid-cols-2">
+        <div className="grid items-center gap-10 pt-24 md:grid-cols-2">
+          {/* Left Content */}
           <div className="flex flex-col gap-6">
             <Pill>
               <p className="text-muted-foreground px-2 text-xs font-medium">All your creative tools in one place</p>
             </Pill>
 
-            <h1 className="text-5xl leading-[1.1] font-medium tracking-tight">
-              Create, Edit & Enhance
+            <h1 className="text-5xl leading-[1.1] font-medium tracking-tight lg:text-6xl">
+              Create, Edit &amp; Enhance
               <span className="text-muted-foreground block">Images and Videos with AI.</span>
             </h1>
 
@@ -81,11 +81,12 @@ export function Hero() {
               formats, edit videos, and create professional content—all from one platform.
             </p>
 
-            <Button className="mb-10 w-fit" size="lg" asChild>
-              <Link href="/tools">Explore Tools</Link>
+            <Button size="lg" className="mb-10 w-fit" asChild>
+              <Link href="/tools/compressor">Explore Tools</Link>
             </Button>
           </div>
 
+          {/* Upload Card */}
           <div className="flex items-center justify-center">
             <div className="bg-background border-border w-full rounded-2xl border p-4 shadow-lg">
               <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
@@ -94,7 +95,7 @@ export function Hero() {
                 onClick={() => inputRef.current?.click()}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
-                className="border-primary/20 bg-muted/30 hover:border-primary/60 hover:bg-muted/40 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 py-24 text-center transition-colors"
+                className="border-primary/20 bg-muted/30 hover:border-primary/60 hover:bg-muted/40 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-24 text-center transition-colors"
               >
                 <div className="bg-primary/10 mb-6 flex h-16 w-16 items-center justify-center rounded-full">
                   <svg
@@ -113,12 +114,13 @@ export function Hero() {
                   </svg>
                 </div>
 
-                <p className="text-muted-foreground mt-2">
-                  Drag & drop your image or <br />
-                  click to browse from your device.
+                <p className="text-muted-foreground">
+                  Drag &amp; drop your image
+                  <br />
+                  or click to browse from your device.
                 </p>
 
-                <p className="text-muted-foreground mt-2">Supports JPG, PNG, WebP, AVIF, GIF and more.</p>
+                <p className="text-muted-foreground mt-3 text-sm">Supports JPG, PNG, WebP, AVIF, GIF, SVG, and more.</p>
 
                 <Button
                   className="mt-8"
@@ -134,6 +136,6 @@ export function Hero() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
