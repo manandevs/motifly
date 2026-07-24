@@ -1,12 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Checkout - Paddle Web Payments Starter",
-  description: "Complete your purchase securely",
-};
 
 const items = [
   {

@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 
-import { Badge } from "@/components/ui/badge";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { Star } from "../shared/star";
 
@@ -75,7 +74,7 @@ export function Testimonials() {
 
           <InfiniteSlider speed={30} reverse={true}>
             {testimonials.map((testimonial, index) => (
-              <div className="bg-card flex h-auto w-xs flex-col gap-2 rounded-xl p-7 shadow-md md:w-[24rem] md:p-8">
+              <div key={index} className="bg-card flex h-auto w-xs flex-col gap-2 rounded-xl p-7 shadow-md md:w-[24rem] md:p-8">
                 <div className="mb-1 text-lg font-semibold">{testimonial.title}</div>
                 <div className="mb-2 flex items-center gap-px">
                   {[...Array(testimonial.rating)].map((_, i) => (
@@ -103,7 +102,7 @@ export function Testimonials() {
 
           <InfiniteSlider speed={30} reverse={false}>
             {testimonials.map((testimonial, index) => (
-              <div className="bg-card flex h-auto w-xs flex-col gap-2 rounded-xl p-7 shadow-md md:w-[24rem] md:p-8">
+              <div key={index} className="bg-card flex h-auto w-xs flex-col gap-2 rounded-xl p-7 shadow-md md:w-[24rem] md:p-8">
                 <div className="mb-1 text-lg font-semibold">{testimonial.title}</div>
                 <div className="mb-2 flex items-center gap-px">
                   {[...Array(testimonial.rating)].map((_, i) => (

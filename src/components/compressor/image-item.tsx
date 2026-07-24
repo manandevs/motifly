@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { deleteImage } from "@/lib/image-db";
 import { LucideTrash } from "lucide-react";
 
 interface ImageItemProps {

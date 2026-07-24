@@ -1,4 +1,5 @@
 import type { PortableTextBlock } from "@portabletext/types";
+
 import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -37,6 +38,27 @@ export type BlogPost = {
   body: PortableTextBlock[];
 };
 
+type SanityBlogPost = {
+  _id: string;
+  slug: string;
+  title?: string;
+  excerpt?: string;
+  publishedAt?: string;
+  featured?: boolean;
+  readingTime?: number | null;
+  seoTitle?: string;
+  seoDescription?: string;
+  keywords?: string[];
+  category?: string;
+  author?: {
+    name?: string;
+    bio?: string;
+    image?: unknown;
+  };
+  mainImage?: unknown;
+  body?: PortableTextBlock[];
+};
+
 const FALLBACK_IMAGE = "/images/blog-wave-dots-a.png";
 
 const BLOG_POST_PROJECTION = `
@@ -64,7 +86,7 @@ const BLOG_POST_PROJECTION = `
   body
 `;
 
-const formatDate = (date?: string) => {
+const formatDate = (date?: string): string => {
   if (!date) return "";
 
   return new Intl.DateTimeFormat("en-US", {
@@ -74,7 +96,7 @@ const formatDate = (date?: string) => {
   }).format(new Date(date));
 };
 
-function mapPost(post: any): BlogPost {
+function mapPost(post: SanityBlogPost): BlogPost {
   return {
     id: post._id,
     slug: post.slug,
@@ -82,26 +104,34 @@ function mapPost(post: any): BlogPost {
     excerpt: post.excerpt ?? "",
     publishedAt: post.publishedAt ?? "",
     date: formatDate(post.publishedAt),
+
     category: post.category ?? "Uncategorized",
+
     author: {
-      name: post.author?.name ?? "Our org's",
-      image: post.author?.image ? urlFor(post.author.image).url() : "",
+      name: post.author?.name ?? "Our Team",
+      image: post.author?.image
+        ? urlFor(post.author.image).url()
+        : "",
       bio: post.author?.bio ?? "",
     },
+
     image: post.mainImage
       ? urlFor(post.mainImage).width(1600).quality(90).url()
       : FALLBACK_IMAGE,
+
     featured: post.featured ?? false,
     readingTime: post.readingTime ?? null,
+
     seoTitle: post.seoTitle ?? "",
     seoDescription: post.seoDescription ?? "",
     keywords: post.keywords ?? [],
+
     body: post.body ?? [],
   };
 }
 
 export async function getBlogCategories(): Promise<BlogCategory[]> {
-  return client.fetch(`
+  return client.fetch<BlogCategory[]>(`
     *[_type == "blogCategory"] | order(title asc){
       title,
       "slug": slug.current,
@@ -111,7 +141,7 @@ export async function getBlogCategories(): Promise<BlogCategory[]> {
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  const posts = await client.fetch(`
+  const posts = await client.fetch<SanityBlogPost[]>(`
     *[_type == "blogPost"]
       | order(featured desc, publishedAt desc){
         ${BLOG_POST_PROJECTION}
@@ -124,7 +154,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 export async function getBlogPostBySlug(
   slug: string
 ): Promise<BlogPost | null> {
-  const post = await client.fetch(
+  const post = await client.fetch<SanityBlogPost | null>(
     `
     *[
       _type == "blogPost" &&
@@ -136,7 +166,9 @@ export async function getBlogPostBySlug(
     { slug }
   );
 
-  if (!post) return null;
+  if (!post) {
+    return null;
+  }
 
   return mapPost(post);
 }

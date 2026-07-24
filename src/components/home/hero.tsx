@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 import { Pill } from "@/components/ui/pill";
 import { Button } from "@/components/ui/button";
-import { BackgroundBlur } from "@/components/ui/background-blur";
 
 import { getImages, saveImages } from "@/lib/image-db";
 
