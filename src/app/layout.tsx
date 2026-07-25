@@ -10,11 +10,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mlotif.vercel.app"), // Replace with your domain
+  metadataBase: new URL("https://motifly.vercel.app"), // Replace with your domain
 
   title: {
-    default: "Mlotif AI — AI Image Editing & Optimization Tools",
-    template: "%s | Mlotif AI",
+    default: "motifly AI — AI Image Editing & Optimization Tools",
+    template: "%s | motifly AI",
   },
 
   description:
@@ -39,19 +39,19 @@ export const metadata: Metadata = {
     "photo editing",
     "image upscaler",
     "Next.js image editor",
-    "Mlotif AI",
+    "motifly AI",
   ],
 
   authors: [
     {
-      name: "Mlotif AI",
+      name: "motifly AI",
     },
   ],
 
-  creator: "Mlotif AI",
-  publisher: "Mlotif AI",
+  creator: "motifly AI",
+  publisher: "motifly AI",
 
-  applicationName: "Mlotif AI",
+  applicationName: "motifly AI",
 
   category: "Technology",
 
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://mlotif.vercel.app",
-    siteName: "Mlotif AI",
-    title: "Mlotif AI — AI Image Editing & Optimization Tools",
+    url: "https://motifly.vercel.app",
+    siteName: "motifly AI",
+    title: "motifly AI — AI Image Editing & Optimization Tools",
     description:
       "Professional AI-powered image editing tools to compress, enhance, resize, convert, and optimize your images online.",
     images: [
@@ -85,24 +85,23 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Mlotif AI",
+        alt: "motifly AI",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Mlotif AI — AI Image Editing & Optimization Tools",
+    title: "motifly AI — AI Image Editing & Optimization Tools",
     description:
       "Powerful AI tools for image editing, compression, enhancement, resizing, and conversion.",
     images: ["/og-image.png"],
-    creator: "@mlotifai",
+    creator: "@motiflyai",
   },
 
   icons: {
-    icon: "/mlotif_favicon.svg",
-    shortcut: "/mlotif_favicon.svg",
-    apple: "/apple-touch-icon.png",
+    icon: "/motifly_favicon.svg",
+    shortcut: "/motifly_favicon.svg",
   },
 
   manifest: "/site.webmanifest",
