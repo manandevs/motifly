@@ -19,7 +19,9 @@ const portableTextComponents: PortableTextComponents = {
           className="h-auto w-full rounded-xs object-cover"
         />
         {value.caption && (
-          <figcaption className="text-muted-foreground mt-2 text-center text-sm">{value.caption}</figcaption>
+          <figcaption className="text-muted-foreground mt-2 text-center text-sm">
+            {value.caption}
+          </figcaption>
         )}
       </figure>
     ),
@@ -27,19 +29,12 @@ const portableTextComponents: PortableTextComponents = {
 
   block: {
     h1: ({ children }) => <h1 className="mt-8 mb-4 text-5xl leading-tight font-bold">{children}</h1>,
-
     h2: ({ children }) => <h2 className="mt-6 mb-4 text-4xl leading-tight font-bold">{children}</h2>,
-
     h3: ({ children }) => <h3 className="mt-5 mb-4 text-3xl leading-tight font-bold">{children}</h3>,
-
     h4: ({ children }) => <h4 className="mt-4 mb-3 text-2xl leading-tight font-bold">{children}</h4>,
-
     h5: ({ children }) => <h5 className="mt-4 mb-2 text-xl font-bold">{children}</h5>,
-
     h6: ({ children }) => <h6 className="mt-2 mb-1 text-lg font-bold">{children}</h6>,
-
     normal: ({ children }) => <p className="text-muted-foreground mb-4 leading-8">{children}</p>,
-
     blockquote: ({ children }) => (
       <blockquote className="border-primary my-4 border-l-4 pl-4 text-lg italic">{children}</blockquote>
     ),
@@ -47,7 +42,6 @@ const portableTextComponents: PortableTextComponents = {
 
   list: {
     bullet: ({ children }) => <ul className="mb-4 ml-4 list-disc space-y-1">{children}</ul>,
-
     number: ({ children }) => <ol className="mb-4 ml-4 list-decimal space-y-1">{children}</ol>,
   },
 
@@ -58,9 +52,7 @@ const portableTextComponents: PortableTextComponents = {
 
   marks: {
     strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-
     em: ({ children }) => <em>{children}</em>,
-
     link: ({ children, value }) => (
       <a
         href={value?.href ?? "#"}
@@ -79,15 +71,34 @@ type BlogArticleProps = {
 };
 
 export default function BlogArticle({ post }: BlogArticleProps) {
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.publishedAt || post.date,
+    author: {
+      "@type": "Person",
+      name: post.author.name,
+    },
+    keywords: post.keywords.join(", "),
+  };
+  
+  const hasAuthorImage = Boolean(post.author?.image && post.author.image.trim() !== "");
+
   return (
     <article className="mx-auto max-w-4xl space-y-4">
       <h1 className="text-center text-3xl leading-tight font-semibold sm:text-5xl">{post.title}</h1>
       <p className="text-muted-foreground mx-auto max-w-3xl text-center text-lg">{post.excerpt}</p>
 
       <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-3 text-sm">
-        <span>{post.publishedAt}</span>
-        <span>•</span>
-        <span>{post.readingTime} min read</span>
+        <span>{post.date || post.publishedAt}</span>
+        {post.readingTime && (
+          <>
+            <span>•</span>
+            <span>{post.readingTime} min read</span>
+          </>
+        )}
       </div>
 
       <div className="prose prose-neutral">
@@ -109,7 +120,7 @@ export default function BlogArticle({ post }: BlogArticleProps) {
       )}
 
       <div className="mt-4 flex items-center gap-5 rounded-lg border p-4">
-        {post.author.image && (
+        {hasAuthorImage && (
           <Image
             src={post.author.image}
             alt={post.author.name}

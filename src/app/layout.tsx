@@ -9,102 +9,70 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const siteUrl = "https://motifly.vercel.app";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://motifly.vercel.app"), // Replace with your domain
-
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "motifly AI — AI Image Editing & Optimization Tools",
-    template: "%s | motifly AI",
+    default: "Motifly | Free Online Image Compressor & Media Tools",
+    template: "%s | Motifly",
   },
-
   description:
-    "Edit, enhance, compress, resize, convert, and optimize images with powerful AI tools. Fast, secure, and free online image editing for creators, businesses, and developers.",
-
+    "Compress PNG, JPEG, and WebP images instantly in your browser without sacrificing quality. Fast, secure, and privacy-focused online image optimization tool.",
+  icons:["/favicon.svg"],
   keywords: [
-    "AI image editor",
     "image compressor",
-    "image enhancer",
-    "background remover",
-    "resize images",
-    "convert images",
-    "image optimizer",
-    "online image editor",
-    "AI photo editor",
-    "compress JPG",
-    "compress PNG",
-    "WebP converter",
-    "AVIF converter",
-    "image converter",
-    "free image tools",
-    "photo editing",
-    "image upscaler",
-    "Next.js image editor",
-    "motifly AI",
+    "compress image online",
+    "png optimizer",
+    "webp converter",
+    "reduce image size",
+    "free media tools",
   ],
-
-  authors: [
-    {
-      name: "motifly AI",
-    },
-  ],
-
-  creator: "motifly AI",
-  publisher: "motifly AI",
-
-  applicationName: "motifly AI",
-
-  category: "Technology",
-
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
+  authors: [{ name: "Motifly Team", url: siteUrl }],
+  creator: "Motifly",
+  publisher: "Motifly",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
   },
-
   alternates: {
-    canonical: "/",
+    canonical: "./",
   },
-
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://motifly.vercel.app",
-    siteName: "motifly AI",
-    title: "motifly AI — AI Image Editing & Optimization Tools",
+    url: siteUrl,
+    title: "Motifly | Free Online Image Compressor & Media Tools",
     description:
-      "Professional AI-powered image editing tools to compress, enhance, resize, convert, and optimize your images online.",
+      "Compress PNG, JPEG, and WebP images instantly in your browser without sacrificing quality.",
+    siteName: "Motifly",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-default.png",
         width: 1200,
         height: 630,
-        alt: "motifly AI",
+        alt: "Motifly - Browser-based Image Compression",
       },
     ],
   },
-
   twitter: {
     card: "summary_large_image",
-    title: "motifly AI — AI Image Editing & Optimization Tools",
-    description:
-      "Powerful AI tools for image editing, compression, enhancement, resizing, and conversion.",
-    images: ["/og-image.png"],
-    creator: "@motiflyai",
+    title: "Motifly | Free Online Image Compressor",
+    description: "Compress images locally in your browser with zero upload wait times.",
+    images: ["/og-default.png"],
   },
-
-  icons: {
-    icon: "/motifly_favicon.svg",
-    shortcut: "/motifly_favicon.svg",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
-
-  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({

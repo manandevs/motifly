@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Preview from "@/components/compressor/preview";
 import Settings, { OutputFormat, ResizeOption } from "@/components/compressor/settings";
 import Stats from "@/components/compressor/stats";
@@ -15,12 +15,30 @@ const resizeOptions: ResizeOption[] = [
 ];
 
 export default function CompressorPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Motifly Image Compressor",
+    url: "https://motifly.vercel.app/tools/compressor",
+    description: "Browser-based image compression tool supporting JPEG, PNG, and WebP formats.",
+    applicationCategory: "MultimediaApplication",
+    operatingSystem: "All",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
   const [images, setImages] = useState<File[]>([]);
   const [quality, setQuality] = useState(75);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("image/jpeg");
   const [resize, setResize] = useState<ResizeOption>(resizeOptions[0]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+
+  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
+  const [selectedOriginalUrl, setSelectedOriginalUrl] = useState<string>("");
 
   const [compressedResult, setCompressedResult] = useState<{
     url: string;
@@ -32,7 +50,6 @@ export default function CompressorPage() {
 
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
 
-  // Load from DB
   const loadImagesFromDB = useCallback(async (newFile?: File) => {
     const files = await getImages();
     setImages(files);
@@ -42,29 +59,22 @@ export default function CompressorPage() {
       return;
     }
 
-    // 1. Priority: If a file was passed directly (via Settings upload)
     if (newFile) {
       setSelectedImage(newFile);
       return;
     }
 
-    // 2. Secondary: Check if we just came from the Home page (sessionStorage)
     const savedIndex = sessionStorage.getItem("selected-image-index");
-
     if (savedIndex !== null) {
       const index = Number(savedIndex);
-      // Clear it immediately so it doesn't reset selection on every refresh
       sessionStorage.removeItem("selected-image-index");
-
       if (!Number.isNaN(index) && files[index]) {
         setSelectedImage(files[index]);
         return;
       }
     }
 
-    // 3. Fallback: Keep current selection or default to the first image
     setSelectedImage((prev) => {
-      // If we already have a selection that still exists in the new file list, keep it
       if (prev && files.some((f) => f.name === prev.name && f.size === prev.size)) {
         return prev;
       }
@@ -72,89 +82,110 @@ export default function CompressorPage() {
     });
   }, []);
 
-  // Ensure initial load calls the updated function
   useEffect(() => {
     loadImagesFromDB();
   }, [loadImagesFromDB]);
 
-  // Handle previews for the list
-  const listPreviewUrls = useMemo(() => images.map((file) => URL.createObjectURL(file)), [images]);
-  useEffect(() => () => listPreviewUrls.forEach((url) => URL.revokeObjectURL(url)), [listPreviewUrls]);
+  useEffect(() => {
+    const urls: Record<string, string> = {};
+    images.forEach((file) => {
+      const key = `${file.name}-${file.size}-${file.lastModified}`;
+      urls[key] = URL.createObjectURL(file);
+    });
+    setPreviewUrls(urls);
 
-  // Handle preview for selected original
-  const selectedOriginalUrl = useMemo(() => {
-    if (!selectedImage) return "";
-    return URL.createObjectURL(selectedImage);
+    return () => {
+      Object.values(urls).forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [images]);
+
+  useEffect(() => {
+    if (!selectedImage) {
+      setSelectedOriginalUrl("");
+      return;
+    }
+    const url = URL.createObjectURL(selectedImage);
+    setSelectedOriginalUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
   }, [selectedImage]);
 
-  useEffect(
-    () => () => {
-      if (selectedOriginalUrl) URL.revokeObjectURL(selectedOriginalUrl);
-    },
-    [selectedOriginalUrl],
-  );
-
-  // THE COMPRESSION ENGINE
   useEffect(() => {
     if (!selectedImage) return;
 
-    const compress = async () => {
-      setIsCompressing(true);
-      const img = new Image();
-      const objectUrl = URL.createObjectURL(selectedImage);
-      img.src = objectUrl;
+    let active = true;
+    setIsCompressing(true);
 
-      img.onload = () => {
-        setOriginalDimensions({ width: img.width, height: img.height });
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(selectedImage);
+    img.src = objectUrl;
 
-        const scale = resize.value / 100;
-        const targetWidth = img.width * scale;
-        const targetHeight = img.height * scale;
+    img.onload = () => {
+      if (!active) {
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
 
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
+      setOriginalDimensions({ width: img.width, height: img.height });
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                if (compressedResult?.url) URL.revokeObjectURL(compressedResult.url);
-                setCompressedResult({
-                  blob,
-                  url: URL.createObjectURL(blob),
-                  size: blob.size,
-                  width: targetWidth,
-                  height: targetHeight,
-                });
-              }
+      const scale = resize.value / 100;
+      const targetWidth = Math.round(img.width * scale);
+      const targetHeight = Math.round(img.height * scale);
+
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(objectUrl);
+            if (!active || !blob) {
               setIsCompressing(false);
-              URL.revokeObjectURL(objectUrl);
-            },
-            outputFormat,
-            quality / 100,
-          );
-        }
-      };
+              return;
+            }
+
+            setCompressedResult((prev) => {
+              if (prev?.url) URL.revokeObjectURL(prev.url);
+              return {
+                blob,
+                url: URL.createObjectURL(blob),
+                size: blob.size,
+                width: targetWidth,
+                height: targetHeight,
+              };
+            });
+            setIsCompressing(false);
+          },
+          outputFormat,
+          quality / 100,
+        );
+      } else {
+        URL.revokeObjectURL(objectUrl);
+        setIsCompressing(false);
+      }
     };
-    compress();
+
+    return () => {
+      active = false;
+    };
   }, [selectedImage, quality, outputFormat, resize]);
 
   const handleDownload = () => {
     if (!compressedResult || !selectedImage) return;
     const link = document.createElement("a");
     link.href = compressedResult.url;
-    link.download = `compressed_${selectedImage.name.split(".")[0]}.${outputFormat.split("/")[1]}`;
+    link.download = `compressed_${selectedImage.name.replace(/\.[^/.]+$/, "")}.${outputFormat.split("/")[1]}`;
     link.click();
   };
 
   const handleDelete = async (index: number) => {
     await deleteImage(index);
-
     const updatedImages = await getImages();
-
     setImages(updatedImages);
 
     if (updatedImages.length === 0) {
@@ -170,6 +201,10 @@ export default function CompressorPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-32">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Preview
@@ -184,18 +219,21 @@ export default function CompressorPage() {
             isCompressing={isCompressing}
           />
 
-          <div className="hidden md:grid gap-3 grid-cols-2">
-            {images.map((img, i) => (
-              <ImageItem
-                key={i}
-                index={i}
-                image={img}
-                previewUrl={listPreviewUrls[i]}
-                isSelected={selectedImage === img}
-                onCompress={setSelectedImage}
-                onDelete={handleDelete}
-              />
-            ))}
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {images.map((img, i) => {
+              const fileKey = `${img.name}-${img.size}-${img.lastModified}`;
+              return (
+                <ImageItem
+                  key={fileKey}
+                  index={i}
+                  image={img}
+                  previewUrl={previewUrls[fileKey] || ""}
+                  isSelected={selectedImage === img}
+                  onCompress={setSelectedImage}
+                  onDelete={handleDelete}
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -225,20 +263,6 @@ export default function CompressorPage() {
             }
           />
         </div>
-
-          <div className="md:hidden grid grid-cols-1 gap-3">
-            {images.map((img, i) => (
-              <ImageItem
-                key={i}
-                index={i}
-                image={img}
-                previewUrl={listPreviewUrls[i]}
-                isSelected={selectedImage === img}
-                onCompress={setSelectedImage}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
       </div>
     </div>
   );

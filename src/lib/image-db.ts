@@ -1,73 +1,60 @@
-import { openDB, type IDBPDatabase } from "idb";
+const DB_NAME = "MotiflyDB";
+const STORE_NAME = "images";
+const DB_VERSION = 1;
 
-const DB_NAME = "image-compressor";
-const STORE_NAME = "uploads";
-const IMAGES_KEY = "current-images";
-
-let dbPromise: Promise<IDBPDatabase> | null = null;
-
-async function getDB() {
-  if (typeof window === "undefined") {
-    throw new Error("IndexedDB is only available in the browser.");
-  }
-
-  if (!dbPromise) {
-    dbPromise = openDB(DB_NAME, 1, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME);
-        }
-      },
-    });
-  }
-
-  return dbPromise;
-}
-
-export async function saveImages(files: File[]): Promise<void> {
-  const db = await getDB();
-
-  const existingImages: File[] =
-    (await db.get(STORE_NAME, IMAGES_KEY)) ?? [];
-
-  const updatedImages = [...existingImages];
-
-  for (const file of files) {
-    const exists = updatedImages.some(
-      (img) => img.name === file.name && img.size === file.size
-    );
-
-    if (!exists) {
-      updatedImages.push(file);
-    }
-  }
-
-  await db.put(STORE_NAME, updatedImages, IMAGES_KEY);
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === "undefined") return;
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { autoIncrement: true });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
 }
 
 export async function getImages(): Promise<File[]> {
-  const db = await getDB();
+  if (typeof window === "undefined") return [];
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
 
-  return (await db.get(STORE_NAME, IMAGES_KEY)) ?? [];
+export async function saveImages(files: File[]): Promise<void> {
+  if (typeof window === "undefined") return;
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    files.forEach((file) => store.add(file));
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
 }
 
 export async function deleteImage(index: number): Promise<void> {
-  const db = await getDB();
-
-  const images: File[] =
-    (await db.get(STORE_NAME, IMAGES_KEY)) ?? [];
-
-  if (index < 0 || index >= images.length) {
-    return;
-  }
-
-  images.splice(index, 1);
-
-  await db.put(STORE_NAME, images, IMAGES_KEY);
-}
-
-export async function clearImages(): Promise<void> {
-  const db = await getDB();
-
-  await db.delete(STORE_NAME, IMAGES_KEY);
+  if (typeof window === "undefined") return;
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    const getAllKeysReq = store.getAllKeys();
+    getAllKeysReq.onsuccess = () => {
+      const keys = getAllKeysReq.result;
+      if (keys[index] !== undefined) {
+        store.delete(keys[index]);
+      }
+      resolve();
+    };
+    getAllKeysReq.onerror = () => reject(getAllKeysReq.error);
+  });
 }

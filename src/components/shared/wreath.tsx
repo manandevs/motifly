@@ -1,24 +1,24 @@
 import { cn } from "@/lib/utils";
-import React from "react";
 
-type Props = {
-  children?: React.ReactNode;
+interface WreathProps {
+  children: React.ReactNode;
   className?: string;
-};
+}
 
-export function Wreath({ children, className }: Props) {
+export function Wreath({ children, className }: WreathProps) {
   return (
-    <div className={"grid w-min grid-cols-[1fr_60px_1fr] md:grid-cols-[1fr_115px_1fr]"}>
-      <Branch className="w-[19px] md:w-[43px]" />
-      <div className={cn("-mx-2.5 mt-1 flex flex-col items-center justify-center md:-mt-2.5", className)}>
-        {children}
-      </div>
-      <Branch className="w-[19px] rotate-y-180 md:w-[43px]" />
+    <div className={cn("flex flex-col items-center justify-center text-center", className)}>
+      {children}
     </div>
   );
 }
 
-function Branch({ className }: Props) {
+interface BranchProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+function Branch({ className }: BranchProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

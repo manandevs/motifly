@@ -46,7 +46,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="inline-flex items-center">
-              <Image src="/motifly_logo.svg" alt="Misfro" width={120} height={36} className="max-h-8 w-auto" />
+              <Image src="/logo.svg" alt="Motifly" width={120} height={36} className="max-h-8 w-auto" />
               <span className="hidden text-2xl sm:block">Motifly</span>
             </Link>
 
@@ -80,7 +80,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="flex flex-col items-center justify-between gap-4 pt-4 text-sm md:flex-row">
-          <p className="text-muted-foreground">© {new Date().getFullYear()} Misfro. All rights reserved.</p>
+          <p className="text-muted-foreground">© {new Date().getFullYear()} Motifly. All rights reserved.</p>
 
           <div className="flex items-center gap-3">
             <Link

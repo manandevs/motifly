@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LucideTrash } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 interface ImageItemProps {
   index: number;
@@ -10,14 +10,20 @@ interface ImageItemProps {
   onDelete: (index: number) => void;
 }
 
-export default function ImageItem({ index, image, previewUrl, isSelected, onCompress, onDelete }: ImageItemProps) {
+export default function ImageItem({
+  index,
+  image,
+  previewUrl,
+  isSelected,
+  onCompress,
+  onDelete,
+}: ImageItemProps) {
   return (
     <div
       className={`group relative mx-auto flex w-full gap-4 rounded-lg border bg-white p-2 shadow-[0px_8px_30px_rgba(0,0,0,0.05)] transition-colors duration-300 ${
         isSelected ? "border-blue-500 ring-1 ring-blue-500" : "border-black/10 hover:border-blue-400/60"
       }`}
     >
-      {/* Image */}
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg">
         <img
           src={previewUrl}
@@ -26,7 +32,6 @@ export default function ImageItem({ index, image, previewUrl, isSelected, onComp
         />
       </div>
 
-      {/* Content */}
       <div className="flex flex-1 flex-col justify-between truncate">
         <h3 className="line-clamp-1 font-semibold">{image.name}</h3>
 
@@ -44,8 +49,8 @@ export default function ImageItem({ index, image, previewUrl, isSelected, onComp
             <Button size="sm" variant={isSelected ? "default" : "secondary"} onClick={() => onCompress(image)}>
               Compress
             </Button>
-            <Button size="icon" variant="destructive" onClick={() => onDelete(index)}>
-              <LucideTrash size={24} />
+            <Button size="icon" variant="destructive" onClick={() => onDelete(index)} aria-label="Delete image">
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>

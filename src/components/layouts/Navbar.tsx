@@ -35,23 +35,19 @@ export function Navbar() {
       className="pointer-events-none fixed top-0 z-30 w-full select-none"
       style={{
         height: "150px",
-        background: "linear-gradient(to top, transparent, #f5f4f3)",
-        maskImage: "linear-gradient(to bottom, #f5f4f3 50%, transparent)",
-        WebkitMaskImage: "linear-gradient(to bottom, #f5f4f3 50%, transparent)",
+        background: "linear-gradient(to top, transparent, var(--background))",
+        maskImage: "linear-gradient(to bottom, var(--background) 50%, transparent)",
+        WebkitMaskImage: "linear-gradient(to bottom, var(--background) 50%, transparent)",
         backdropFilter: "blur(4px)",
         WebkitBackdropFilter: "blur(4px)",
-        userSelect: "none",
-        WebkitUserSelect: "none",
       }}
     >
       <nav className="pointer-events-auto z-50 mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
-        {/* Logo */}
         <Link href="/" className="flex cursor-pointer items-center gap-2">
-          <Image src="/motifly_logo.svg" alt="Misfro" width={110} height={32} priority className="max-h-8 w-auto" />
-         <span className="text-2xl hidden sm:block">Motifly</span>
+          <Image src="/logo.svg" alt="Motifly" width={110} height={32} priority className="max-h-8 w-auto" />
+          <span className="hidden text-2xl sm:block">Motifly</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden items-center gap-8 md:flex">
           <NavigationMenu>
             <NavigationMenuList className="gap-6">
@@ -77,7 +73,6 @@ export function Navbar() {
           </Button>
         </div>
 
-        {/* Mobile Navigation */}
         <div className="md:hidden">
           <Drawer direction="top">
             <DrawerTrigger className="hover:bg-accent cursor-pointer rounded-md p-2 transition-colors">
