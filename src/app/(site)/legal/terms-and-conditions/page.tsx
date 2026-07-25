@@ -65,7 +65,7 @@ export default function TermsAndConditionsPage() {
           <p className="text-muted-foreground mt-4 text-[17px] leading-7">
             You may use our services only for lawful purposes. You agree not to
             misuse, interfere with, or attempt to gain unauthorized access to
-            our systems, services, or other users' accounts.
+            our systems, services, or other users&lsquo; accounts.
           </p>
         </section>
 
