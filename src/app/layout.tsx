@@ -75,7 +75,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://mlotif.vercel.app 
+    url: "https://mlotif.vercel.app",
     siteName: "Mlotif AI",
     title: "Mlotif AI — AI Image Editing & Optimization Tools",
     description:
