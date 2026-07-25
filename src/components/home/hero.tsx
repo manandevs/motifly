@@ -66,22 +66,21 @@ export function Hero() {
       <div className="mx-auto w-full max-w-7xl px-4">
         <div className="grid items-center gap-10 pt-24 md:grid-cols-2">
           {/* Left Content */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <Pill>
               <p className="text-muted-foreground px-2 text-xs font-medium">All your creative tools in one place</p>
             </Pill>
 
-            <h1 className="text-5xl leading-[1.1] font-medium tracking-tight lg:text-6xl">
-              Create, Edit &amp; Enhance
-              <span className="text-muted-foreground block">Images and Videos with AI.</span>
+            <h1 className="text-5xl leading-[1.1] font-medium tracking-tight lg:text-[54px]">
+              Smarter Image
+              <span className="text-muted-foreground block">Editing Starts Here.</span>
             </h1>
 
             <p className="max-w-lg leading-6 tracking-tight lg:text-xl">
-              Access powerful AI tools to edit photos, enhance quality, remove backgrounds, compress files, convert
-              formats, edit videos, and create professional content—all from one platform.
+              From background removal to smart compression and format conversion, transform your images effortlessly with intelligent tools designed for speed and precision.
             </p>
 
-            <Button size="lg" className="mb-10 w-fit" asChild>
+            <Button size="lg" className="mt-10 w-fit" asChild>
               <Link href="/tools/compressor">Explore Tools</Link>
             </Button>
           </div>

@@ -46,8 +46,9 @@ export function Navbar() {
     >
       <nav className="pointer-events-auto z-50 mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex cursor-pointer items-center">
-          <Image src="/logo.svg" alt="Misfro" width={110} height={32} priority />
+        <Link href="/" className="flex cursor-pointer items-center gap-2">
+          <Image src="/mlotif_logo.svg" alt="Misfro" width={110} height={32} priority className="max-h-8 w-auto" />
+         <span className="text-2xl hidden sm:block">Mlotif</span>
         </Link>
 
         {/* Desktop Navigation */}

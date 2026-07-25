@@ -46,7 +46,8 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="inline-flex items-center">
-              <Image src="/logo.svg" alt="Misfro" width={120} height={36} />
+              <Image src="/mlotif_logo.svg" alt="Misfro" width={120} height={36} className="max-h-8 w-auto" />
+              <span className="hidden text-2xl sm:block">Mlotif</span>
             </Link>
 
             <p className="leading-6 tracking-tight lg:text-xl">
