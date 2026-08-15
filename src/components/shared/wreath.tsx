@@ -23,7 +23,7 @@ export function Wreath({ children, className }: WreathProps) {
   );
 }
 
-interface BranchProps extends React.SVGProps<SVGSVGElement> {}
+type BranchProps = React.SVGProps<SVGSVGElement>;
 
 function Branch({ className, ...props }: BranchProps) {
   return (

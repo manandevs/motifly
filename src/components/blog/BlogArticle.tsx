@@ -88,6 +88,12 @@ export default function BlogArticle({ post }: BlogArticleProps) {
 
   return (
     <article className="mx-auto max-w-4xl space-y-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd),
+        }}
+      />
       <h1 className="text-center text-3xl leading-tight font-semibold sm:text-5xl">{post.title}</h1>
       <p className="text-muted-foreground mx-auto max-w-3xl text-center text-lg">{post.excerpt}</p>
 

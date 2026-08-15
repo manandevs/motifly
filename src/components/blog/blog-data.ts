@@ -130,45 +130,95 @@ function mapPost(post: SanityBlogPost): BlogPost {
   };
 }
 
+const MOCK_CATEGORIES: BlogCategory[] = [
+  { title: "Image Optimization", slug: "image-optimization", description: "Tips and guides on compressing and optimizing images for the web." },
+  { title: "Web Performance", slug: "web-performance", description: "Improve your website speed and core web vitals." },
+];
+
+const MOCK_POSTS: BlogPost[] = [
+  {
+    id: "mock-1",
+    slug: "how-to-compress-images-without-losing-quality",
+    title: "How to Compress Images Without Losing Quality",
+    excerpt: "Learn the best practices for reducing file sizes of PNG, JPEG, and WebP images while maintaining visual fidelity.",
+    publishedAt: "2026-08-01T00:00:00Z",
+    date: "August 1, 2026",
+    category: "Image Optimization",
+    author: {
+      name: "Motifly Team",
+      image: "/avatars/1.jpg",
+      bio: "Core engineering and media tools team at Motifly.",
+    },
+    image: "/app-image-1.png",
+    featured: true,
+    readingTime: 4,
+    seoTitle: "How to Compress Images Without Losing Quality",
+    seoDescription: "Discover proven techniques to compress your images for faster website loading speeds.",
+    keywords: ["image compression", "webp", "png optimizer", "performance"],
+    body: [
+      {
+        _type: "block",
+        _key: "block1",
+        style: "normal",
+        children: [{ _type: "span", _key: "span1", text: "Image compression is essential for modern web performance. By reducing unnecessary metadata and optimizing color quantization, you can drastically decrease page load times." }]
+      } as PortableTextBlock
+    ]
+  }
+];
+
 export async function getBlogCategories(): Promise<BlogCategory[]> {
-  return client.fetch<BlogCategory[]>(`
-    *[_type == "blogCategory"] | order(title asc){
-      title,
-      "slug": slug.current,
-      description
-    }
-  `);
+  try {
+    const categories = await client.fetch<BlogCategory[]>(`
+      *[_type == "blogCategory"] | order(title asc){
+        title,
+        "slug": slug.current,
+        description
+      }
+    `);
+    if (!categories || categories.length === 0) return MOCK_CATEGORIES;
+    return categories;
+  } catch {
+    return MOCK_CATEGORIES;
+  }
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  const posts = await client.fetch<SanityBlogPost[]>(`
-    *[_type == "blogPost"]
-      | order(featured desc, publishedAt desc){
-        ${BLOG_POST_PROJECTION}
-      }
-  `);
-
-  return posts.map(mapPost);
+  try {
+    const posts = await client.fetch<SanityBlogPost[]>(`
+      *[_type == "blogPost"]
+        | order(featured desc, publishedAt desc){
+          ${BLOG_POST_PROJECTION}
+        }
+    `);
+    if (!posts || posts.length === 0) return MOCK_POSTS;
+    return posts.map(mapPost);
+  } catch {
+    return MOCK_POSTS;
+  }
 }
 
 export async function getBlogPostBySlug(
   slug: string
 ): Promise<BlogPost | null> {
-  const post = await client.fetch<SanityBlogPost | null>(
-    `
-    *[
-      _type == "blogPost" &&
-      slug.current == $slug
-    ][0]{
-      ${BLOG_POST_PROJECTION}
+  try {
+    const post = await client.fetch<SanityBlogPost | null>(
+      `
+      *[
+        _type == "blogPost" &&
+        slug.current == $slug
+      ][0]{
+        ${BLOG_POST_PROJECTION}
+      }
+      `,
+      { slug }
+    );
+
+    if (!post) {
+      return MOCK_POSTS.find((p) => p.slug === slug) || null;
     }
-    `,
-    { slug }
-  );
 
-  if (!post) {
-    return null;
+    return mapPost(post);
+  } catch {
+    return MOCK_POSTS.find((p) => p.slug === slug) || null;
   }
-
-  return mapPost(post);
 }

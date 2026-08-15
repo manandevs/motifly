@@ -1,0 +1,6 @@
+{
+  "name": "Motifly Image Compressor",
+  "description": "Free online image compressor and media tools for PNG, JPEG, and WebP optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
