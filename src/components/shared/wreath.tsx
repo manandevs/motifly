@@ -1,3 +1,4 @@
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface WreathProps {
@@ -7,18 +8,24 @@ interface WreathProps {
 
 export function Wreath({ children, className }: WreathProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center text-center", className)}>
-      {children}
+    <div className={cn("inline-flex items-center justify-center gap-2 md:gap-4", className)}>
+      {/* Left Branch */}
+      <Branch className="shrink-0" />
+
+      {/* Content in the middle */}
+      <div className="flex flex-col items-center justify-center text-center">
+        {children}
+      </div>
+
+      {/* Right Branch (flipped horizontally) */}
+      <Branch className="shrink-0 -scale-x-100" />
     </div>
   );
 }
 
-interface BranchProps {
-  children: React.ReactNode;
-  className?: string;
-}
+interface BranchProps extends React.SVGProps<SVGSVGElement> {}
 
-function Branch({ className }: BranchProps) {
+function Branch({ className, ...props }: BranchProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +33,8 @@ function Branch({ className }: BranchProps) {
       height="81"
       viewBox="0 0 43 81"
       fill="none"
-      className={className}
+      className={cn("h-12 w-auto md:h-20", className)}
+      {...props}
     >
       <g opacity="0.5">
         <path
