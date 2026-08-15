@@ -15,6 +15,14 @@ import { useRouter } from "next/navigation";
 
 const navItems = [
   {
+    label: "Compressor",
+    href: "/tools/compressor",
+  },
+  {
+    label: "Cropper",
+    href: "/tools/cropper",
+  },
+  {
     label: "Blog",
     href: "/blog",
   },

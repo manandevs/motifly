@@ -34,6 +34,7 @@
     "radix-ui": "^1.6.5",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-easy-crop": "^6.2.3",
     "react-use-measure": "^2.1.7",
     "sanity": "^5.31.1",
     "sonner": "^2.0.5",
