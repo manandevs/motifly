@@ -50,6 +50,7 @@ export default function CropperPage() {
     width: number;
     height: number;
   } | null>(null);
+
   const [compressedResult, setCompressedResult] = useState<{
     url: string;
     blob: Blob;
@@ -122,9 +123,16 @@ export default function CropperPage() {
     };
   }, [selectedImage]);
 
-  const onCropComplete = useCallback((_croppedArea: { x: number; y: number; width: number; height: number }, croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
+  const onCropComplete = useCallback(
+    (_croppedArea: { x: number; y: number; width: number; height: number }, croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
+
+  const handleCropPixelsChange = (pixels: { x: number; y: number; width: number; height: number }) => {
+    setCroppedAreaPixels(pixels);
+  };
 
   const handleApplyCrop = async () => {
     if (!selectedOriginalUrl || !croppedAreaPixels) {
@@ -161,7 +169,8 @@ export default function CropperPage() {
     if (!compressedResult || !selectedImage) return;
     const link = document.createElement("a");
     link.href = compressedResult.url;
-    link.download = `cropped_${selectedImage.name.replace(/\.[^/.]+$/, "")}.${outputFormat.split("/")[1]}`;
+    const ext = outputFormat.split("/")[1];
+    link.download = `cropped_${selectedImage.name.replace(/\.[^/.]+$/, "")}.${ext}`;
     link.click();
     toast.success("Download started!");
   };
@@ -189,7 +198,6 @@ export default function CropperPage() {
     toast.success("Image uploaded successfully!");
   };
 
-  // Drag and drop handler for page
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -207,7 +215,7 @@ export default function CropperPage() {
 
   return (
     <main
-      className="min-h-screen py-32"
+      className="min-h-screen py-28"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
@@ -222,11 +230,13 @@ export default function CropperPage() {
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Image Cropper</h1>
           <p className="text-muted-foreground mt-2">
-            Crop, rotate, and resize your images instantly with precision aspect ratio controls.
+            Crop, rotate, and resize your images instantly with precision pixel dimensions and aspect ratios.
           </p>
         </header>
 
+        {/* Dual-Panel Workspace Layout */}
         <div className="grid gap-8 lg:grid-cols-3">
+          {/* Left Panel: Interactive Workspace / Canvas */}
           <div className="lg:col-span-2">
             <CropperPreview
               imageSrc={selectedOriginalUrl}
@@ -247,6 +257,7 @@ export default function CropperPage() {
             />
           </div>
 
+          {/* Right Sidebar: Crop Options Panel */}
           <div>
             <CropperSettings
               aspectRatio={aspectRatio}
@@ -260,6 +271,8 @@ export default function CropperPage() {
               onOutputFormatChange={setOutputFormat}
               quality={quality}
               onQualityChange={setQuality}
+              cropPixels={croppedAreaPixels}
+              onCropPixelsChange={handleCropPixelsChange}
               onApplyCrop={handleApplyCrop}
               onReset={handleReset}
               onDownload={handleDownload}

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Cropper from "react-easy-crop";
-import { Trash2, Download } from "lucide-react";
+import { Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CropperPreviewProps {
@@ -50,8 +50,13 @@ export default function CropperPreview({
 }: CropperPreviewProps) {
   return (
     <div className="flex w-full flex-col gap-6">
-      {/* Main Cropper Stage */}
-      <div className="bg-card border-border relative flex h-[450px] w-full items-center justify-center overflow-hidden rounded-2xl border shadow-sm">
+      {/* Guidance Note */}
+      <div className="bg-muted/50 border border-border flex items-center justify-between rounded-xl px-4 py-2.5 text-xs text-muted-foreground">
+        <span>💡 Tip: Drag and resize the crop box directly with your cursor on the canvas, or enter exact dimensions in the sidebar.</span>
+      </div>
+
+      {/* Left Panel: High-contrast workspace background with dark/neutral canvas */}
+      <div className="relative flex h-[500px] w-full items-center justify-center overflow-hidden rounded-2xl bg-neutral-950 border border-neutral-800 shadow-inner">
         {imageSrc ? (
           <div className="relative h-full w-full">
             <Cropper
@@ -63,11 +68,17 @@ export default function CropperPreview({
               onCropChange={onCropChange}
               onZoomChange={onZoomChange}
               onCropComplete={onCropComplete}
+              classes={{
+                containerClassName: "rounded-2xl",
+                mediaClassName: "",
+                cropAreaClassName: "border-2 border-primary shadow-2xl",
+              }}
             />
           </div>
         ) : (
-          <div className="text-muted-foreground flex flex-col items-center justify-center p-8 text-center">
-            <p>No image selected. Upload an image to start cropping.</p>
+          <div className="flex flex-col items-center justify-center p-8 text-center text-neutral-400">
+            <ImageIcon className="mb-3 h-12 w-12 opacity-40" />
+            <p className="text-sm font-medium">No image selected. Upload an image to start cropping.</p>
           </div>
         )}
       </div>
@@ -84,7 +95,7 @@ export default function CropperPreview({
               <div
                 key={key}
                 className={`group relative flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 transition-all ${
-                  isSelected ? "border-primary shadow-md" : "border-border hover:border-muted-foreground"
+                  isSelected ? "border-primary shadow-md scale-105" : "border-border hover:border-muted-foreground"
                 }`}
                 onClick={() => onSelectImage(file)}
               >
@@ -112,18 +123,23 @@ export default function CropperPreview({
 
       {/* Cropped Result Preview (if applied) */}
       {compressedResult && (
-        <div className="bg-card border-border flex flex-col gap-4 rounded-xl border p-6 shadow-sm">
+        <div className="bg-card border-border flex flex-col gap-4 rounded-xl border p-6 shadow-sm animate-in fade-in duration-300">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Cropped Output Preview</h3>
-            <Button size="sm" onClick={onDownload} className="gap-2">
-              <Download className="h-4 w-4" /> Download Cropped ({compressedResult.width} × {compressedResult.height}px)
+            <div>
+              <h3 className="font-semibold text-lg">Cropped Output Preview</h3>
+              <p className="text-muted-foreground text-xs">
+                Dimensions: {compressedResult.width} × {compressedResult.height}px | Size: {(compressedResult.size / 1024).toFixed(1)} KB
+              </p>
+            </div>
+            <Button size="sm" onClick={onDownload} className="gap-2 font-semibold">
+              <Download className="h-4 w-4" /> Download Cropped Image
             </Button>
           </div>
-          <div className="flex items-center justify-center bg-muted/30 rounded-lg p-4">
+          <div className="flex items-center justify-center bg-neutral-900 rounded-lg p-4 border border-neutral-800">
             <img
               src={compressedResult.url}
               alt="Cropped Preview"
-              className="max-h-[300px] w-auto rounded object-contain shadow"
+              className="max-h-[320px] w-auto rounded object-contain shadow-lg"
             />
           </div>
         </div>

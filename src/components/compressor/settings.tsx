@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import { ChevronDown, Upload } from "lucide-react";
 import { saveImages } from "@/lib/image-db";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import {
   DropdownMenu,
@@ -26,6 +27,10 @@ interface SettingsProps {
   resize: ResizeOption;
   resizeOptions: ResizeOption[];
   onResizeChange: (o: ResizeOption) => void;
+  customWidth: number;
+  onCustomWidthChange: (w: number) => void;
+  originalWidth: number;
+  originalHeight: number;
   onDownload: () => void;
   onUploadSuccess: (file: File) => void;
   disabled?: boolean;
@@ -39,6 +44,10 @@ const Settings = ({
   resize,
   resizeOptions,
   onResizeChange,
+  customWidth,
+  onCustomWidthChange,
+  originalWidth,
+  originalHeight,
   onDownload,
   onUploadSuccess,
   disabled,
@@ -103,21 +112,37 @@ const Settings = ({
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-medium">Resize</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              {resize.label} <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64">
-            {resizeOptions.map((o) => (
-              <DropdownMenuItem key={o.value} onClick={() => onResizeChange(o)}>
-                {o.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <h3 className="text-sm font-medium">Resize (Width in px)</h3>
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-1/2 justify-between">
+                {resize.label} <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
+              {resizeOptions.map((o) => (
+                <DropdownMenuItem key={o.value} onClick={() => onResizeChange(o)}>
+                  {o.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="w-1/2">
+            <Input
+              type="number"
+              placeholder="Width (px)"
+              value={customWidth || ""}
+              onChange={(e) => onCustomWidthChange(Number(e.target.value))}
+              className="h-10 text-xs"
+            />
+          </div>
+        </div>
+        {originalWidth > 0 && (
+          <p className="text-muted-foreground text-xs">
+            Original: {originalWidth} × {originalHeight}px (Height adjusts automatically)
+          </p>
+        )}
       </div>
 
       <Button className="mt-2 w-full" onClick={onDownload} disabled={disabled}>

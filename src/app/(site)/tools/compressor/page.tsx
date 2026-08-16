@@ -34,6 +34,8 @@ export default function CompressorPage() {
   const [quality, setQuality] = useState(75);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("image/jpeg");
   const [resize, setResize] = useState<ResizeOption>(resizeOptions[0]);
+  const [customWidth, setCustomWidth] = useState<number>(0);
+  const [isCustomResize, setIsCustomResize] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
@@ -112,6 +114,19 @@ export default function CompressorPage() {
     };
   }, [selectedImage]);
 
+  const handleResizeChange = (o: ResizeOption) => {
+    setResize(o);
+    setIsCustomResize(false);
+    if (originalDimensions.width > 0) {
+      setCustomWidth(Math.round(originalDimensions.width * (o.value / 100)));
+    }
+  };
+
+  const handleCustomWidthChange = (w: number) => {
+    setCustomWidth(w);
+    setIsCustomResize(true);
+  };
+
   useEffect(() => {
     if (!selectedImage) return;
 
@@ -129,12 +144,24 @@ export default function CompressorPage() {
       }
 
       setOriginalDimensions({ width: img.width, height: img.height });
+      if (!isCustomResize && customWidth === 0) {
+        setCustomWidth(Math.round(img.width * (resize.value / 100)));
+      }
+
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
-      const scale = resize.value / 100;
-      const targetWidth = Math.round(img.width * scale);
-      const targetHeight = Math.round(img.height * scale);
+      let targetWidth = img.width;
+      let targetHeight = img.height;
+
+      if (isCustomResize && customWidth > 0) {
+        targetWidth = customWidth;
+        targetHeight = Math.round(img.height * (customWidth / img.width));
+      } else {
+        const scale = resize.value / 100;
+        targetWidth = Math.round(img.width * scale);
+        targetHeight = Math.round(img.height * scale);
+      }
 
       canvas.width = targetWidth;
       canvas.height = targetHeight;
@@ -173,7 +200,7 @@ export default function CompressorPage() {
     return () => {
       active = false;
     };
-  }, [selectedImage, quality, outputFormat, resize]);
+  }, [selectedImage, quality, outputFormat, resize, customWidth, isCustomResize]);
 
   const handleDownload = () => {
     if (!compressedResult || !selectedImage) return;
@@ -245,7 +272,11 @@ export default function CompressorPage() {
             onOutputFormatChange={setOutputFormat}
             resize={resize}
             resizeOptions={resizeOptions}
-            onResizeChange={setResize}
+            onResizeChange={handleResizeChange}
+            customWidth={customWidth}
+            onCustomWidthChange={handleCustomWidthChange}
+            originalWidth={originalDimensions.width}
+            originalHeight={originalDimensions.height}
             onDownload={handleDownload}
             onUploadSuccess={loadImagesFromDB}
             disabled={isCompressing || !selectedImage}
