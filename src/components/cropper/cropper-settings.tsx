@@ -18,6 +18,10 @@ interface CropperSettingsProps {
   aspectRatio: number | undefined;
   aspectRatios: AspectRatioOption[];
   onAspectRatioChange: (ratio: number | undefined) => void;
+  cropShape: "rect" | "round";
+  onCropShapeChange: (shape: "rect" | "round") => void;
+  showGrid: boolean;
+  onShowGridChange: (show: boolean) => void;
   zoom: number;
   onZoomChange: (zoom: number) => void;
   rotation: number;
@@ -40,6 +44,10 @@ export default function CropperSettings({
   aspectRatio,
   aspectRatios,
   onAspectRatioChange,
+  cropShape,
+  onCropShapeChange,
+  showGrid,
+  onShowGridChange,
   zoom,
   onZoomChange,
   rotation,
@@ -141,6 +149,39 @@ export default function CropperSettings({
               {ratio.label}
             </Button>
           ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">Mask &amp; Grid Presets</h3>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            size="sm"
+            variant={cropShape === "rect" ? "default" : "outline"}
+            onClick={() => onCropShapeChange("rect")}
+            className="text-xs"
+          >
+            Rectangle
+          </Button>
+          <Button
+            size="sm"
+            variant={cropShape === "round" ? "default" : "outline"}
+            onClick={() => onCropShapeChange("round")}
+            className="text-xs"
+          >
+            Circle Mask
+          </Button>
+        </div>
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-muted-foreground text-xs">Rule-of-Thirds Grid</span>
+          <Button
+            size="sm"
+            variant={showGrid ? "default" : "outline"}
+            onClick={() => onShowGridChange(!showGrid)}
+            className="h-7 text-xs px-3"
+          >
+            {showGrid ? "Enabled" : "Disabled"}
+          </Button>
         </div>
       </div>
 

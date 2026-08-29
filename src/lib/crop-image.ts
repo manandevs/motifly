@@ -3,7 +3,8 @@ export async function getCroppedImg(
   pixelCrop: { x: number; y: number; width: number; height: number },
   rotation = 0,
   outputFormat = "image/jpeg",
-  quality = 0.92
+  quality = 0.92,
+  cropShape: "rect" | "round" = "rect"
 ): Promise<{ url: string; blob: Blob; width: number; height: number; size: number }> {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -51,6 +52,20 @@ export async function getCroppedImg(
     pixelCrop.width,
     pixelCrop.height
   );
+
+  if (cropShape === "round") {
+    croppedCtx.globalCompositeOperation = "destination-in";
+    croppedCtx.beginPath();
+    croppedCtx.arc(
+      pixelCrop.width / 2,
+      pixelCrop.height / 2,
+      Math.min(pixelCrop.width, pixelCrop.height) / 2,
+      0,
+      2 * Math.PI
+    );
+    croppedCtx.fill();
+    croppedCtx.globalCompositeOperation = "source-over";
+  }
 
   return new Promise((resolve, reject) => {
     croppedCanvas.toBlob(

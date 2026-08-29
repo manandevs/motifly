@@ -13,6 +13,8 @@ interface CropperPreviewProps {
   onZoomChange: (zoom: number) => void;
   rotation: number;
   aspectRatio: number | undefined;
+  cropShape?: "rect" | "round";
+  showGrid?: boolean;
   onCropComplete: (
     _croppedArea: { x: number; y: number; width: number; height: number },
     croppedAreaPixels: { x: number; y: number; width: number; height: number }
@@ -39,6 +41,8 @@ export default function CropperPreview({
   onZoomChange,
   rotation,
   aspectRatio,
+  cropShape = "rect",
+  showGrid = true,
   onCropComplete,
   images,
   selectedImage,
@@ -65,6 +69,8 @@ export default function CropperPreview({
               zoom={zoom}
               rotation={rotation}
               aspect={aspectRatio}
+              cropShape={cropShape}
+              showGrid={showGrid}
               onCropChange={onCropChange}
               onZoomChange={onZoomChange}
               onCropComplete={onCropComplete}

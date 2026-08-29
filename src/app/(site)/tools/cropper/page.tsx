@@ -41,6 +41,8 @@ export default function CropperPage() {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
+  const [cropShape, setCropShape] = useState<"rect" | "round">("rect");
+  const [showGrid, setShowGrid] = useState<boolean>(true);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("image/jpeg");
   const [quality, setQuality] = useState(90);
 
@@ -146,7 +148,8 @@ export default function CropperPage() {
         croppedAreaPixels,
         rotation,
         outputFormat,
-        quality / 100
+        quality / 100,
+        cropShape
       );
       setCompressedResult(res);
       toast.success("Image cropped successfully!");
@@ -246,6 +249,8 @@ export default function CropperPage() {
               onZoomChange={setZoom}
               rotation={rotation}
               aspectRatio={aspectRatio}
+              cropShape={cropShape}
+              showGrid={showGrid}
               onCropComplete={onCropComplete}
               images={images}
               selectedImage={selectedImage}
@@ -263,6 +268,10 @@ export default function CropperPage() {
               aspectRatio={aspectRatio}
               aspectRatios={aspectRatios}
               onAspectRatioChange={setAspectRatio}
+              cropShape={cropShape}
+              onCropShapeChange={setCropShape}
+              showGrid={showGrid}
+              onShowGridChange={setShowGrid}
               zoom={zoom}
               onZoomChange={setZoom}
               rotation={rotation}
