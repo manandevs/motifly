@@ -10,14 +10,7 @@ interface ImageItemProps {
   onDelete: (index: number) => void;
 }
 
-export default function ImageItem({
-  index,
-  image,
-  previewUrl,
-  isSelected,
-  onCompress,
-  onDelete,
-}: ImageItemProps) {
+export default function ImageItem({ index, image, previewUrl, isSelected, onCompress, onDelete }: ImageItemProps) {
   return (
     <div
       className={`group relative mx-auto flex w-full gap-4 rounded-lg border bg-white p-2 shadow-[0px_8px_30px_rgba(0,0,0,0.05)] transition-colors duration-300 ${

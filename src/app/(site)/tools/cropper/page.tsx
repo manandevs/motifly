@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import CropperPreview from "@/components/cropper/cropper-preview";
 import CropperSettings, { AspectRatioOption, OutputFormat } from "@/components/cropper/cropper-settings";
 import { deleteImage, getImages, saveImages } from "@/lib/image-db";
-import { getCroppedImg } from "@/lib/crop-image";
+import { CropRect, Size, getCroppedImg, getMaxCrop, getRotatedSize, setCropField } from "@/lib/crop-image";
 import { toast } from "sonner";
 
 const aspectRatios: AspectRatioOption[] = [
@@ -22,7 +22,8 @@ export default function CropperPage() {
     "@type": "WebApplication",
     name: "Motifly Image Cropper",
     url: "https://motifly.vercel.app/tools/cropper",
-    description: "Browser-based online image cropper supporting custom aspect ratios, rotation, zoom, and formats.",
+    description:
+      "Browser-based online image cropper supporting free-form and fixed aspect ratio crops, rotation, and multiple output formats.",
     applicationCategory: "MultimediaApplication",
     operatingSystem: "All",
     offers: {
@@ -37,23 +38,14 @@ export default function CropperPage() {
   const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
   const [selectedOriginalUrl, setSelectedOriginalUrl] = useState<string>("");
 
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
+  const [imageSize, setImageSize] = useState<Size | null>(null);
+  const [crop, setCrop] = useState<CropRect | null>(null);
   const [rotation, setRotation] = useState(0);
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
-  const [cropShape, setCropShape] = useState<"rect" | "round">("rect");
-  const [showGrid, setShowGrid] = useState<boolean>(true);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("image/jpeg");
   const [quality, setQuality] = useState(90);
 
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-
-  const [compressedResult, setCompressedResult] = useState<{
+  const [croppedResult, setCroppedResult] = useState<{
     url: string;
     blob: Blob;
     width: number;
@@ -111,47 +103,65 @@ export default function CropperPage() {
   }, [images]);
 
   useEffect(() => {
+    setImageSize(null);
+    setCrop(null);
+    setRotation(0);
+    setCroppedResult(null);
+
     if (!selectedImage) {
       setSelectedOriginalUrl("");
-      setCompressedResult(null);
       return;
     }
+
     const url = URL.createObjectURL(selectedImage);
     setSelectedOriginalUrl(url);
-    setCompressedResult(null);
+
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      if (cancelled) return;
+      const size = { width: img.naturalWidth, height: img.naturalHeight };
+      setImageSize(size);
+      setCrop(getMaxCrop(size));
+    };
+    img.onerror = () => {
+      if (!cancelled) toast.error("Could not load this image.");
+    };
+    img.src = url;
 
     return () => {
+      cancelled = true;
       URL.revokeObjectURL(url);
     };
   }, [selectedImage]);
 
-  const onCropComplete = useCallback(
-    (_croppedArea: { x: number; y: number; width: number; height: number }, croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
-      setCroppedAreaPixels(croppedAreaPixels);
-    },
-    []
-  );
+  const cropBounds = imageSize ? getRotatedSize(imageSize, rotation) : null;
 
-  const handleCropPixelsChange = (pixels: { x: number; y: number; width: number; height: number }) => {
-    setCroppedAreaPixels(pixels);
+  const handleAspectRatioChange = (ratio: number | undefined) => {
+    setAspectRatio(ratio);
+    // Free mode keeps the current box; a fixed ratio snaps to the largest centered box of that shape.
+    if (ratio && cropBounds) setCrop(getMaxCrop(cropBounds, ratio));
+  };
+
+  const handleRotationChange = (value: number) => {
+    setRotation(value);
+    if (imageSize) setCrop(getMaxCrop(getRotatedSize(imageSize, value), aspectRatio));
+  };
+
+  const handleCropFieldChange = (field: keyof CropRect, value: number) => {
+    if (!crop || !cropBounds) return;
+    setCrop(setCropField(crop, field, value, cropBounds, aspectRatio));
   };
 
   const handleApplyCrop = async () => {
-    if (!selectedOriginalUrl || !croppedAreaPixels) {
+    if (!selectedOriginalUrl || !crop) {
       toast.error("Please select an image and crop area first.");
       return;
     }
 
     try {
-      const res = await getCroppedImg(
-        selectedOriginalUrl,
-        croppedAreaPixels,
-        rotation,
-        outputFormat,
-        quality / 100,
-        cropShape
-      );
-      setCompressedResult(res);
+      const res = await getCroppedImg(selectedOriginalUrl, crop, rotation, outputFormat, quality / 100);
+      setCroppedResult(res);
       toast.success("Image cropped successfully!");
     } catch (err) {
       console.error(err);
@@ -160,19 +170,20 @@ export default function CropperPage() {
   };
 
   const handleReset = () => {
-    setCrop({ x: 0, y: 0 });
-    setZoom(1);
     setRotation(0);
     setAspectRatio(undefined);
-    setCompressedResult(null);
+    if (imageSize) setCrop(getMaxCrop(imageSize));
+    setCroppedResult(null);
     toast.info("Crop settings reset.");
   };
 
   const handleDownload = () => {
-    if (!compressedResult || !selectedImage) return;
+    if (!croppedResult || !selectedImage) return;
     const link = document.createElement("a");
-    link.href = compressedResult.url;
-    const ext = outputFormat.split("/")[1];
+    link.href = croppedResult.url;
+    // Name the file after the format the browser actually encoded, not just the one requested.
+    const subtype = croppedResult.blob.type.split("/")[1] || "png";
+    const ext = subtype === "jpeg" ? "jpg" : subtype;
     link.download = `cropped_${selectedImage.name.replace(/\.[^/.]+$/, "")}.${ext}`;
     link.click();
     toast.success("Download started!");
@@ -185,7 +196,7 @@ export default function CropperPage() {
 
     if (updatedImages.length === 0) {
       setSelectedImage(null);
-      setCompressedResult(null);
+      setCroppedResult(null);
       return;
     }
 
@@ -217,11 +228,7 @@ export default function CropperPage() {
   };
 
   return (
-    <main
-      className="min-h-screen py-28"
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-    >
+    <main className="min-h-screen py-28" onDrop={handleDrop} onDragOver={handleDragOver}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -243,21 +250,17 @@ export default function CropperPage() {
           <div className="lg:col-span-2">
             <CropperPreview
               imageSrc={selectedOriginalUrl}
-              crop={crop}
-              onCropChange={setCrop}
-              zoom={zoom}
-              onZoomChange={setZoom}
+              imageSize={imageSize}
               rotation={rotation}
               aspectRatio={aspectRatio}
-              cropShape={cropShape}
-              showGrid={showGrid}
-              onCropComplete={onCropComplete}
+              crop={crop}
+              onCropChange={setCrop}
               images={images}
               selectedImage={selectedImage}
               onSelectImage={setSelectedImage}
               onDeleteImage={handleDelete}
               previewUrls={previewUrls}
-              compressedResult={compressedResult}
+              croppedResult={croppedResult}
               onDownload={handleDownload}
             />
           </div>
@@ -267,27 +270,21 @@ export default function CropperPage() {
             <CropperSettings
               aspectRatio={aspectRatio}
               aspectRatios={aspectRatios}
-              onAspectRatioChange={setAspectRatio}
-              cropShape={cropShape}
-              onCropShapeChange={setCropShape}
-              showGrid={showGrid}
-              onShowGridChange={setShowGrid}
-              zoom={zoom}
-              onZoomChange={setZoom}
+              onAspectRatioChange={handleAspectRatioChange}
               rotation={rotation}
-              onRotationChange={setRotation}
+              onRotationChange={handleRotationChange}
               outputFormat={outputFormat}
               onOutputFormatChange={setOutputFormat}
               quality={quality}
               onQualityChange={setQuality}
-              cropPixels={croppedAreaPixels}
-              onCropPixelsChange={handleCropPixelsChange}
+              crop={crop}
+              onCropFieldChange={handleCropFieldChange}
               onApplyCrop={handleApplyCrop}
               onReset={handleReset}
               onDownload={handleDownload}
               onUploadSuccess={handleUploadSuccess}
-              disabled={!selectedOriginalUrl}
-              hasResult={Boolean(compressedResult)}
+              disabled={!imageSize}
+              hasResult={Boolean(croppedResult)}
             />
           </div>
         </div>

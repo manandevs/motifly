@@ -1,12 +1,29 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter_Tight } from "next/font/google";
+import localFont from "next/font/local";
 import { Toaster } from "sonner";
 
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
   subsets: ["latin"],
+});
+
+// Heading font (applied to h1–h6 in globals.css)
+const estiana = localFont({
+  src: "./fonts/AVEstiana-Regular.otf",
+  variable: "--font-estiana",
+  weight: "400",
+  display: "swap",
+});
+
+// Display serif for highlighted words in headings (see components/landing/accent.tsx)
+const jaguar = localFont({
+  src: "./fonts/Jaguar.otf",
+  variable: "--font-jaguar",
+  weight: "400",
+  display: "swap",
 });
 
 const siteUrl = "https://motifly.vercel.app";
@@ -19,7 +36,7 @@ export const metadata: Metadata = {
   },
   description:
     "Compress PNG, JPEG, and WebP images instantly in your browser without sacrificing quality. Fast, secure, and privacy-focused online image optimization tool.",
-  icons:["/favicon.svg"],
+  icons: ["/favicon.svg"],
   keywords: [
     "image compressor",
     "compress image online",
@@ -44,8 +61,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     title: "Motifly | Free Online Image Compressor & Media Tools",
-    description:
-      "Compress PNG, JPEG, and WebP images instantly in your browser without sacrificing quality.",
+    description: "Compress PNG, JPEG, and WebP images instantly in your browser without sacrificing quality.",
     siteName: "Motifly",
     images: [
       {
@@ -82,7 +98,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body
+        className={`${interTight.variable} ${estiana.variable} ${jaguar.variable} antialiased`}
+        suppressHydrationWarning
+      >
         {children}
         <Toaster richColors position="top-right" />
       </body>

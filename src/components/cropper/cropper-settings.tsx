@@ -3,11 +3,18 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Upload, RotateCw, RotateCcw, Plus, Minus } from "lucide-react";
 import { saveImages } from "@/lib/image-db";
+import { CropRect } from "@/lib/crop-image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 
-export type OutputFormat = "image/jpeg" | "image/webp" | "image/png" | "image/avif";
+export type OutputFormat = "image/jpeg" | "image/webp" | "image/png";
+
+const outputFormats: { value: OutputFormat; label: string }[] = [
+  { value: "image/jpeg", label: "JPEG" },
+  { value: "image/png", label: "PNG" },
+  { value: "image/webp", label: "WEBP" },
+];
 
 export interface AspectRatioOption {
   label: string;
@@ -18,20 +25,14 @@ interface CropperSettingsProps {
   aspectRatio: number | undefined;
   aspectRatios: AspectRatioOption[];
   onAspectRatioChange: (ratio: number | undefined) => void;
-  cropShape: "rect" | "round";
-  onCropShapeChange: (shape: "rect" | "round") => void;
-  showGrid: boolean;
-  onShowGridChange: (show: boolean) => void;
-  zoom: number;
-  onZoomChange: (zoom: number) => void;
   rotation: number;
   onRotationChange: (rotation: number) => void;
   outputFormat: OutputFormat;
   onOutputFormatChange: (format: OutputFormat) => void;
   quality: number;
   onQualityChange: (quality: number) => void;
-  cropPixels: { x: number; y: number; width: number; height: number } | null;
-  onCropPixelsChange: (pixels: { x: number; y: number; width: number; height: number }) => void;
+  crop: CropRect | null;
+  onCropFieldChange: (field: keyof CropRect, value: number) => void;
   onApplyCrop: () => void;
   onReset: () => void;
   onDownload: () => void;
@@ -40,24 +41,90 @@ interface CropperSettingsProps {
   hasResult?: boolean;
 }
 
+const cropFields: { field: keyof CropRect; label: string; step: number }[] = [
+  { field: "width", label: "Width (px)", step: 10 },
+  { field: "height", label: "Height (px)", step: 10 },
+  { field: "x", label: "Position X (px)", step: 5 },
+  { field: "y", label: "Position Y (px)", step: 5 },
+];
+
+function CropNumberField({
+  label,
+  value,
+  step,
+  disabled,
+  onCommit,
+}: {
+  label: string;
+  value: number;
+  step: number;
+  disabled?: boolean;
+  onCommit: (value: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+
+  // Keep the field in sync while the crop box is dragged.
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  // Commit typed values on blur / Enter so partially typed numbers aren't clamped mid-typing.
+  const commit = () => {
+    const num = Number(draft);
+    if (draft.trim() === "" || Number.isNaN(num)) setDraft(String(value));
+    else onCommit(num);
+  };
+
+  return (
+    <div className="space-y-1">
+      <label className="text-muted-foreground text-xs">{label}</label>
+      <div className="flex items-center">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-9 rounded-r-none px-2"
+          disabled={disabled}
+          onClick={() => onCommit(value - step)}
+        >
+          <Minus className="h-3 w-3" />
+        </Button>
+        <Input
+          type="number"
+          value={draft}
+          disabled={disabled}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => e.key === "Enter" && commit()}
+          className="h-9 rounded-none text-center text-xs"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-9 rounded-l-none px-2"
+          disabled={disabled}
+          onClick={() => onCommit(value + step)}
+        >
+          <Plus className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function CropperSettings({
   aspectRatio,
   aspectRatios,
   onAspectRatioChange,
-  cropShape,
-  onCropShapeChange,
-  showGrid,
-  onShowGridChange,
-  zoom,
-  onZoomChange,
   rotation,
   onRotationChange,
   outputFormat,
   onOutputFormatChange,
   quality,
   onQualityChange,
-  cropPixels,
-  onCropPixelsChange,
+  crop,
+  onCropFieldChange,
   onApplyCrop,
   onReset,
   onDownload,
@@ -66,37 +133,6 @@ export default function CropperSettings({
   hasResult,
 }: CropperSettingsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [widthInput, setWidthInput] = useState<number>(0);
-  const [heightInput, setHeightInput] = useState<number>(0);
-  const [xInput, setXInput] = useState<number>(0);
-  const [yInput, setYInput] = useState<number>(0);
-
-  useEffect(() => {
-    if (cropPixels) {
-      setWidthInput(Math.round(cropPixels.width));
-      setHeightInput(Math.round(cropPixels.height));
-      setXInput(Math.round(cropPixels.x));
-      setYInput(Math.round(cropPixels.y));
-    }
-  }, [cropPixels]);
-
-  const handleInputChange = (field: "width" | "height" | "x" | "y", val: number) => {
-    const num = isNaN(val) ? 0 : val;
-    if (field === "width") setWidthInput(num);
-    if (field === "height") setHeightInput(num);
-    if (field === "x") setXInput(num);
-    if (field === "y") setYInput(num);
-
-    if (cropPixels) {
-      onCropPixelsChange({
-        width: field === "width" ? num : widthInput,
-        height: field === "height" ? num : heightInput,
-        x: field === "x" ? num : xInput,
-        y: field === "y" ? num : yInput,
-      });
-    }
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -144,6 +180,7 @@ export default function CropperSettings({
               size="sm"
               variant={aspectRatio === ratio.value ? "default" : "outline"}
               onClick={() => onAspectRatioChange(ratio.value)}
+              disabled={disabled}
               className="text-xs"
             >
               {ratio.label}
@@ -153,189 +190,33 @@ export default function CropperSettings({
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-medium">Mask &amp; Grid Presets</h3>
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            size="sm"
-            variant={cropShape === "rect" ? "default" : "outline"}
-            onClick={() => onCropShapeChange("rect")}
-            className="text-xs"
-          >
-            Rectangle
-          </Button>
-          <Button
-            size="sm"
-            variant={cropShape === "round" ? "default" : "outline"}
-            onClick={() => onCropShapeChange("round")}
-            className="text-xs"
-          >
-            Circle Mask
-          </Button>
-        </div>
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-muted-foreground text-xs">Rule-of-Thirds Grid</span>
-          <Button
-            size="sm"
-            variant={showGrid ? "default" : "outline"}
-            onClick={() => onShowGridChange(!showGrid)}
-            className="h-7 text-xs px-3"
-          >
-            {showGrid ? "Enabled" : "Disabled"}
-          </Button>
-        </div>
-      </div>
-
-      {/* Numeric Input Controls with steppers */}
-      <div className="space-y-3">
         <h3 className="text-sm font-medium">Dimensions & Position (px)</h3>
         <div className="grid grid-cols-2 gap-3">
-          {/* Width */}
-          <div className="space-y-1">
-            <label className="text-muted-foreground text-xs">Width (px)</label>
-            <div className="flex items-center">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-r-none px-2"
-                onClick={() => handleInputChange("width", Math.max(10, widthInput - 10))}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <Input
-                type="number"
-                value={widthInput}
-                onChange={(e) => handleInputChange("width", Number(e.target.value))}
-                className="h-9 rounded-none text-center text-xs"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-l-none px-2"
-                onClick={() => handleInputChange("width", widthInput + 10)}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Height */}
-          <div className="space-y-1">
-            <label className="text-muted-foreground text-xs">Height (px)</label>
-            <div className="flex items-center">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-r-none px-2"
-                onClick={() => handleInputChange("height", Math.max(10, heightInput - 10))}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <Input
-                type="number"
-                value={heightInput}
-                onChange={(e) => handleInputChange("height", Number(e.target.value))}
-                className="h-9 rounded-none text-center text-xs"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-l-none px-2"
-                onClick={() => handleInputChange("height", heightInput + 10)}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Position X */}
-          <div className="space-y-1">
-            <label className="text-muted-foreground text-xs">Position X (px)</label>
-            <div className="flex items-center">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-r-none px-2"
-                onClick={() => handleInputChange("x", xInput - 5)}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <Input
-                type="number"
-                value={xInput}
-                onChange={(e) => handleInputChange("x", Number(e.target.value))}
-                className="h-9 rounded-none text-center text-xs"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-l-none px-2"
-                onClick={() => handleInputChange("x", xInput + 5)}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Position Y */}
-          <div className="space-y-1">
-            <label className="text-muted-foreground text-xs">Position Y (px)</label>
-            <div className="flex items-center">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-r-none px-2"
-                onClick={() => handleInputChange("y", yInput - 5)}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <Input
-                type="number"
-                value={yInput}
-                onChange={(e) => handleInputChange("y", Number(e.target.value))}
-                className="h-9 rounded-none text-center text-xs"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 rounded-l-none px-2"
-                onClick={() => handleInputChange("y", yInput + 5)}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
+          {cropFields.map(({ field, label, step }) => (
+            <CropNumberField
+              key={field}
+              label={label}
+              step={step}
+              value={crop ? Math.round(crop[field]) : 0}
+              disabled={disabled || !crop}
+              onCommit={(value) => onCropFieldChange(field, value)}
+            />
+          ))}
         </div>
       </div>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">Zoom: <span className="text-primary">{zoom.toFixed(1)}x</span></h3>
-        </div>
-        <Slider
-          value={[zoom]}
-          onValueChange={(v) => onZoomChange(v[0])}
-          min={1}
-          max={3}
-          step={0.1}
-        />
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">Rotation: <span className="text-primary">{rotation}°</span></h3>
+          <h3 className="text-sm font-medium">
+            Rotation: <span className="text-primary">{rotation}°</span>
+          </h3>
           <div className="flex gap-1">
             <Button
               size="icon"
               variant="outline"
               className="h-7 w-7"
+              aria-label="Rotate left 90°"
+              disabled={disabled}
               onClick={() => onRotationChange((rotation - 90 + 360) % 360)}
             >
               <RotateCcw className="h-3.5 w-3.5" />
@@ -344,6 +225,8 @@ export default function CropperSettings({
               size="icon"
               variant="outline"
               className="h-7 w-7"
+              aria-label="Rotate right 90°"
+              disabled={disabled}
               onClick={() => onRotationChange((rotation + 90) % 360)}
             >
               <RotateCw className="h-3.5 w-3.5" />
@@ -354,52 +237,49 @@ export default function CropperSettings({
           value={[rotation]}
           onValueChange={(v) => onRotationChange(v[0])}
           min={0}
-          max={360}
+          max={359}
           step={1}
+          disabled={disabled}
         />
       </div>
 
       <div className="space-y-3">
         <h3 className="text-sm font-medium">Output Format</h3>
-        <div className="grid grid-cols-4 gap-1.5">
-          {(["image/jpeg", "image/png", "image/webp", "image/avif"] as OutputFormat[]).map((f) => (
+        <div className="grid grid-cols-3 gap-1.5">
+          {outputFormats.map((f) => (
             <Button
-              key={f}
+              key={f.value}
               size="sm"
-              variant={outputFormat === f ? "default" : "outline"}
-              onClick={() => onOutputFormatChange(f)}
-              className="text-[11px] px-1"
+              variant={outputFormat === f.value ? "default" : "outline"}
+              onClick={() => onOutputFormatChange(f.value)}
+              className="text-xs"
             >
-              {f.split("/")[1].toUpperCase()}
+              {f.label}
             </Button>
           ))}
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">Quality: <span className="text-primary">{quality}%</span></h3>
+      {/* PNG is lossless, so the quality setting only applies to JPEG / WEBP */}
+      {outputFormat !== "image/png" && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium">
+            Quality: <span className="text-primary">{quality}%</span>
+          </h3>
+          <Slider value={[quality]} onValueChange={(v) => onQualityChange(v[0])} min={10} max={100} step={1} />
         </div>
-        <Slider
-          value={[quality]}
-          onValueChange={(v) => onQualityChange(v[0])}
-          min={10}
-          max={100}
-          step={1}
-        />
-      </div>
+      )}
 
-      {/* Prominent Action Button */}
-      <div className="flex flex-col gap-2 pt-4 border-t">
+      <div className="flex flex-col gap-2 border-t pt-4">
         <Button
           size="lg"
           className="w-full text-base font-semibold shadow-md transition-all hover:scale-[1.01]"
           onClick={onApplyCrop}
-          disabled={disabled}
+          disabled={disabled || !crop}
         >
-          Crop IMAGE →
+          Crop Image →
         </Button>
-        <div className="grid grid-cols-2 gap-2 mt-2">
+        <div className="mt-2 grid grid-cols-2 gap-2">
           <Button variant="outline" onClick={onReset} disabled={disabled} size="sm">
             Reset
           </Button>

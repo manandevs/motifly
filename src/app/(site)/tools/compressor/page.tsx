@@ -228,10 +228,7 @@ export default function CompressorPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-32">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Preview

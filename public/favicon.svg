@@ -1,11 +1,18 @@
-<svg width="490" height="490" viewBox="0 0 490 490" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="489.524" height="489.524" rx="125" fill="#FBFBF2"/>
-<path d="M185.832 125.631L320.249 377.365C332.87 401.003 339.181 412.822 348.15 413.048C357.118 413.275 362.734 401.757 373.965 378.722L423.529 277.058C427.514 268.885 429.505 264.799 429.404 260.251C429.301 255.706 427.122 251.476 422.764 243.017L349.883 101.57C345.55 93.1563 343.382 88.9506 339.885 86.4713C336.388 83.9941 332.156 83.6658 323.692 83.0079L212.591 74.3844C187.658 72.4501 175.192 71.4837 170.675 80.1343C166.158 88.784 172.717 101.067 185.832 125.631Z" fill="url(#paint0_linear_105_28)"/>
-<path d="M81.8712 201.647C72.7998 208.526 63.812 218.974 57.6133 229.813C53.8321 236.442 48.1118 254.105 47.2473 261.531C45.8196 274.345 46.9628 287.74 50.38 299.118C53.1245 307.931 84.5494 369.87 90.0412 377.29C97.2046 386.766 107.371 395.662 118.524 402.015C125.153 405.797 142.815 411.517 150.241 412.381C169.322 414.555 185.493 411.611 202.414 403.026C219.397 394.41 231.291 383.036 240.682 366.574C244.556 359.819 250.278 342.313 251.14 334.574C252.631 321.884 251.457 308.583 248.009 297.144C245.264 288.33 213.839 226.392 208.347 218.972C201.152 209.432 191.05 200.662 179.959 194.277C173.236 190.465 155.636 184.713 147.991 183.881C135.082 182.422 122.126 183.5 110.374 187.108C103.028 189.342 87.9501 197.071 81.8712 201.647Z" fill="black"/>
-<defs>
-<linearGradient id="paint0_linear_105_28" x1="-409.821" y1="-273.491" x2="168.417" y2="-490.497" gradientUnits="userSpaceOnUse">
-<stop/>
-<stop offset="1"/>
-</linearGradient>
-</defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="motifly-bg" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B5BFF"/>
+      <stop offset="0.5" stop-color="#4A3AFF"/>
+      <stop offset="1" stop-color="#7B61FF"/>
+    </linearGradient>
+    <linearGradient id="motifly-shine" x1="24" y1="0" x2="24" y2="26" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="14" fill="url(#motifly-bg)"/>
+  <rect width="48" height="48" rx="14" fill="url(#motifly-shine)"/>
+  <rect x="0.5" y="0.5" width="47" height="47" rx="13.5" stroke="#fff" stroke-opacity="0.2"/>
+  <path d="M35 7.5C35.5 10.6 36.9 12 40 12.5C36.9 13 35.5 14.4 35 17.5C34.5 14.4 33.1 13 30 12.5C33.1 12 34.5 10.6 35 7.5Z" fill="#fff"/>
+  <path d="M9.5 36L16.5 17.5L24 30L31.5 17.5L38.5 36Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
 </svg>

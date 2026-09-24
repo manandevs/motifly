@@ -19,9 +19,7 @@ const portableTextComponents: PortableTextComponents = {
           className="h-auto w-full rounded-xs object-cover"
         />
         {value.caption && (
-          <figcaption className="text-muted-foreground mt-2 text-center text-sm">
-            {value.caption}
-          </figcaption>
+          <figcaption className="text-muted-foreground mt-2 text-center text-sm">{value.caption}</figcaption>
         )}
       </figure>
     ),
@@ -83,7 +81,7 @@ export default function BlogArticle({ post }: BlogArticleProps) {
     },
     keywords: post.keywords.join(", "),
   };
-  
+
   const hasAuthorImage = Boolean(post.author?.image && post.author.image.trim() !== "");
 
   return (

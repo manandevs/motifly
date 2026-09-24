@@ -109,15 +109,11 @@ function mapPost(post: SanityBlogPost): BlogPost {
 
     author: {
       name: post.author?.name ?? "Our Team",
-      image: post.author?.image
-        ? urlFor(post.author.image).url()
-        : "",
+      image: post.author?.image ? urlFor(post.author.image).url() : "",
       bio: post.author?.bio ?? "",
     },
 
-    image: post.mainImage
-      ? urlFor(post.mainImage).width(1600).quality(90).url()
-      : FALLBACK_IMAGE,
+    image: post.mainImage ? urlFor(post.mainImage).width(1600).quality(90).url() : FALLBACK_IMAGE,
 
     featured: post.featured ?? false,
     readingTime: post.readingTime ?? null,
@@ -131,7 +127,11 @@ function mapPost(post: SanityBlogPost): BlogPost {
 }
 
 const MOCK_CATEGORIES: BlogCategory[] = [
-  { title: "Image Optimization", slug: "image-optimization", description: "Tips and guides on compressing and optimizing images for the web." },
+  {
+    title: "Image Optimization",
+    slug: "image-optimization",
+    description: "Tips and guides on compressing and optimizing images for the web.",
+  },
   { title: "Web Performance", slug: "web-performance", description: "Improve your website speed and core web vitals." },
 ];
 
@@ -140,7 +140,8 @@ const MOCK_POSTS: BlogPost[] = [
     id: "mock-1",
     slug: "how-to-compress-images-without-losing-quality",
     title: "How to Compress Images Without Losing Quality",
-    excerpt: "Learn the best practices for reducing file sizes of PNG, JPEG, and WebP images while maintaining visual fidelity.",
+    excerpt:
+      "Learn the best practices for reducing file sizes of PNG, JPEG, and WebP images while maintaining visual fidelity.",
     publishedAt: "2026-08-01T00:00:00Z",
     date: "August 1, 2026",
     category: "Image Optimization",
@@ -160,10 +161,16 @@ const MOCK_POSTS: BlogPost[] = [
         _type: "block",
         _key: "block1",
         style: "normal",
-        children: [{ _type: "span", _key: "span1", text: "Image compression is essential for modern web performance. By reducing unnecessary metadata and optimizing color quantization, you can drastically decrease page load times." }]
-      } as PortableTextBlock
-    ]
-  }
+        children: [
+          {
+            _type: "span",
+            _key: "span1",
+            text: "Image compression is essential for modern web performance. By reducing unnecessary metadata and optimizing color quantization, you can drastically decrease page load times.",
+          },
+        ],
+      } as PortableTextBlock,
+    ],
+  },
 ];
 
 export async function getBlogCategories(): Promise<BlogCategory[]> {
@@ -197,9 +204,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   }
 }
 
-export async function getBlogPostBySlug(
-  slug: string
-): Promise<BlogPost | null> {
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
     const post = await client.fetch<SanityBlogPost | null>(
       `
@@ -210,7 +215,7 @@ export async function getBlogPostBySlug(
         ${BLOG_POST_PROJECTION}
       }
       `,
-      { slug }
+      { slug },
     );
 
     if (!post) {

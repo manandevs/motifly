@@ -77,7 +77,7 @@ export type ChoiceboxItemIndicatorProps = ComponentProps<typeof RadioGroupIndica
 
 export const ChoiceboxItemIndicator = ({ className, ...props }: ChoiceboxItemIndicatorProps) => (
   <RadioGroupIndicator asChild {...props}>
-    <div className="bg-accent grid place-items-center rounded-full p-[2px]">
+    <div className="bg-accent grid place-items-center rounded-full p-0.5">
       <CheckIcon className={cn("text-card size-4", className)} />
     </div>
   </RadioGroupIndicator>

@@ -15,9 +15,7 @@ const SITE_NAME = "Your Website";
 const SITE_URL = "https://yourdomain.com";
 const PUBLISHER = "Your Company";
 
-export async function generateMetadata({
-  params,
-}: BlogDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: BlogDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
 
   const post = await getBlogPostBySlug(slug);
@@ -75,9 +73,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogDetailPage({
-  params,
-}: BlogDetailPageProps) {
+export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
 
   const post = await getBlogPostBySlug(slug);

@@ -1,15 +1,18 @@
-<svg width="385" height="342" viewBox="0 0 385 342" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_103_68)">
-<path d="M140.172 53.1105L274.856 305.347C287.503 329.032 293.826 340.874 302.813 341.102C311.8 341.329 317.426 329.788 328.68 306.706L378.343 204.839C382.336 196.65 384.331 192.556 384.23 187.999C384.127 183.445 381.943 179.207 377.577 170.731L304.55 29.0007C300.208 20.5705 298.036 16.3564 294.532 13.8721C291.029 11.39 286.788 11.061 278.307 10.4018L166.984 1.76103C142.001 -0.177043 129.509 -1.1454 124.984 7.52245C120.458 16.1895 127.03 28.4968 140.172 53.1105Z" fill="url(#paint0_linear_103_68)"/>
-<path d="M36.0026 129.278C26.9131 136.171 17.9074 146.64 11.6962 157.501C7.90753 164.143 2.17577 181.84 1.30958 189.281C-0.12102 202.122 1.02449 215.543 4.44846 226.943C7.19849 235.775 38.6862 297.837 44.1889 305.271C51.3667 314.767 61.5529 323.68 72.7282 330.047C79.3704 333.835 97.0678 339.567 104.509 340.433C123.628 342.611 139.832 339.661 156.786 331.059C173.803 322.426 185.721 311.029 195.131 294.534C199.013 287.766 204.746 270.225 205.61 262.471C207.104 249.755 205.928 236.428 202.472 224.965C199.722 216.134 168.234 154.072 162.732 146.637C155.522 137.079 145.399 128.291 134.287 121.893C127.55 118.073 109.915 112.31 102.255 111.476C89.3201 110.015 76.3375 111.095 64.5619 114.709C57.2021 116.949 42.0937 124.693 36.0026 129.278Z" fill="black"/>
-</g>
-<defs>
-<linearGradient id="paint0_linear_103_68" x1="-456.672" y1="-346.809" x2="122.721" y2="-564.249" gradientUnits="userSpaceOnUse">
-<stop/>
-<stop offset="1"/>
-</linearGradient>
-<clipPath id="clip0_103_68">
-<rect width="385" height="342" fill="white"/>
-</clipPath>
-</defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="motifly-bg" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B5BFF"/>
+      <stop offset="0.5" stop-color="#4A3AFF"/>
+      <stop offset="1" stop-color="#7B61FF"/>
+    </linearGradient>
+    <linearGradient id="motifly-shine" x1="24" y1="0" x2="24" y2="26" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="14" fill="url(#motifly-bg)"/>
+  <rect width="48" height="48" rx="14" fill="url(#motifly-shine)"/>
+  <rect x="0.5" y="0.5" width="47" height="47" rx="13.5" stroke="#fff" stroke-opacity="0.2"/>
+  <path d="M35 7.5C35.5 10.6 36.9 12 40 12.5C36.9 13 35.5 14.4 35 17.5C34.5 14.4 33.1 13 30 12.5C33.1 12 34.5 10.6 35 7.5Z" fill="#fff"/>
+  <path d="M9.5 36L16.5 17.5L24 30L31.5 17.5L38.5 36Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
 </svg>

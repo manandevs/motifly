@@ -49,11 +49,11 @@ export default function Preview({
         <p className="text-muted-foreground text-sm">Compare the original and compressed image.</p>
       </div>
 
-      <div className="grid gap-4 grid-cols-2">
+      <div className="grid grid-cols-2 gap-4">
         {/* Original */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium hidden sm:block">Original</h3>
+            <h3 className="hidden font-medium sm:block">Original</h3>
 
             <span className="text-muted-foreground text-sm">{formatSize(originalSize)}</span>
           </div>
@@ -74,7 +74,7 @@ export default function Preview({
         {/* Compressed */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium hidden sm:block">Compressed</h3>
+            <h3 className="hidden font-medium sm:block">Compressed</h3>
 
             <span className="text-sm font-medium text-green-600">{formatSize(compressedSize)}</span>
           </div>
