@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { ChevronLeft, Crop, FileImage, ImageDown, Sparkles } from "lucide-react";
+import { ChevronLeft, ImageDown, Sparkles } from "lucide-react";
 
 import { Accent } from "@/components/landing/accent";
 import { Container } from "@/components/landing/container";
@@ -12,14 +12,12 @@ import { landingImages } from "@/components/landing/images";
 
 const rows = [
   {
-    icon: Crop,
     title: ["Crop to Any Shape", "or Exact Pixel Size"],
     image: { src: "/landing/feature-crop-workspace.png", alt: "The cropper workspace with a crop box on a photo" },
     description:
       "Drag the handles for a free crop, or lock the box to 1:1, 4:3 or 16:9. Need something exact? Type the width, height and position in pixels, and rotate the image first.",
   },
   {
-    icon: FileImage,
     title: ["Pick the Right Format", "for Every Use"],
     image: { src: "/landing/feature-format-settings.png", alt: "Output format and resize settings in the compressor" },
     description:
@@ -95,7 +93,6 @@ export function Features() {
         <div className="mt-15.75">
           {rows.map((row) => (
             <div key={row.title[0]} className="border-t border-[#e6e6eb] pt-12.25 pb-11.75 last:border-b">
-              <IconBox icon={row.icon} />
               <div className="mt-4.25 flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
                 <h3 className="text-[clamp(2rem,3.35vw,3rem)] leading-[1.19] font-medium tracking-[-0.015em] text-[#0e0e10]">
                   {row.title[0]}
@@ -104,7 +101,7 @@ export function Features() {
                 </h3>
                 {/* Product screenshot between the heading and the description */}
                 <div className="relative h-37.5 w-full max-w-50 overflow-hidden rounded-xs border border-[#e6e6eb] bg-white">
-                  <Image src={row.image.src} alt={row.image.alt} fill sizes="200px" className="object-contain" />
+                  <Image src={row.image.src} alt={row.image.alt} fill sizes="300px" className="object-contain" />
                 </div>
                 <p className="max-w-117 text-[17px] leading-6 text-[#7a7a85] lg:w-117">{row.description}</p>
               </div>
