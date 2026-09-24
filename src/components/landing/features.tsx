@@ -14,12 +14,14 @@ const rows = [
   {
     icon: Crop,
     title: ["Crop to Any Shape", "or Exact Pixel Size"],
+    image: { src: "/landing/feature-crop-workspace.png", alt: "The cropper workspace with a crop box on a photo" },
     description:
       "Drag the handles for a free crop, or lock the box to 1:1, 4:3 or 16:9. Need something exact? Type the width, height and position in pixels, and rotate the image first.",
   },
   {
     icon: FileImage,
     title: ["Pick the Right Format", "for Every Use"],
+    image: { src: "/landing/feature-format-settings.png", alt: "Output format and resize settings in the compressor" },
     description:
       "Save as WebP for the smallest files, JPEG for photos that open everywhere, or PNG when you need transparency. You can also resize by percentage or to an exact width.",
   },
@@ -100,6 +102,10 @@ export function Features() {
                   <br />
                   {row.title[1]}
                 </h3>
+                {/* Product screenshot between the heading and the description */}
+                <div className="relative h-37.5 w-full max-w-50 overflow-hidden rounded-xs border border-[#e6e6eb] bg-white">
+                  <Image src={row.image.src} alt={row.image.alt} fill sizes="200px" className="object-contain" />
+                </div>
                 <p className="max-w-117 text-[17px] leading-6 text-[#7a7a85] lg:w-117">{row.description}</p>
               </div>
             </div>

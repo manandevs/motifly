@@ -2,22 +2,51 @@
 
 import React, { useRef } from "react";
 import useMeasure from "react-use-measure";
-import { Trash2, Download, Image as ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
+import { Accent } from "@/components/landing/accent";
+import { EmptyState, ImageThumbnails, PreviewArea, Spinner, ToolCard } from "@/components/tool/tool-ui";
 import { CropRect, ResizeHandle, Size, getRotatedSize, moveCrop, resizeCrop } from "@/lib/crop-image";
 
 const STAGE_PADDING = 24;
+
 const MIN_CROP_DISPLAY_SIZE = 20;
 
-const handles: { id: ResizeHandle; className: string; cursor: string }[] = [
-  { id: "nw", className: "left-0 top-0", cursor: "nwse-resize" },
-  { id: "n", className: "left-1/2 top-0", cursor: "ns-resize" },
-  { id: "ne", className: "left-full top-0", cursor: "nesw-resize" },
-  { id: "e", className: "left-full top-1/2", cursor: "ew-resize" },
-  { id: "se", className: "left-full top-full", cursor: "nwse-resize" },
-  { id: "s", className: "left-1/2 top-full", cursor: "ns-resize" },
-  { id: "sw", className: "left-0 top-full", cursor: "nesw-resize" },
-  { id: "w", className: "left-0 top-1/2", cursor: "ew-resize" },
+// `position` places the handle's center on the crop box edge; `shape` draws it:
+// bars along the edge they resize, L-shaped brackets hugging each corner.
+const bar = "bg-[#4a3aff] rounded-full shadow-[0_0_0_1.5px_#fff]";
+const corner = "size-4 border-[#4a3aff] drop-shadow-[0_0_1px_#fff]";
+const handles: { id: ResizeHandle; position: string; shape: string; cursor: string }[] = [
+  {
+    id: "nw",
+    position: "left-0 top-0",
+    shape: `${corner} absolute left-2.5 top-2.5 border-t-4 border-l-4`,
+    cursor: "nwse-resize",
+  },
+  { id: "n", position: "left-1/2 top-0", shape: `${bar} h-1 w-8`, cursor: "ns-resize" },
+  {
+    id: "ne",
+    position: "left-full top-0",
+    shape: `${corner} absolute right-2.5 top-2.5 border-t-4 border-r-4`,
+    cursor: "nesw-resize",
+  },
+  { id: "e", position: "left-full top-1/2", shape: `${bar} h-8 w-1`, cursor: "ew-resize" },
+  {
+    id: "se",
+    position: "left-full top-full",
+    shape: `${corner} absolute right-2.5 bottom-2.5 border-b-4 border-r-4`,
+    cursor: "nwse-resize",
+  },
+  { id: "s", position: "left-1/2 top-full", shape: `${bar} h-1 w-8`, cursor: "ns-resize" },
+  {
+    id: "sw",
+    position: "left-0 top-full",
+    shape: `${corner} absolute left-2.5 bottom-2.5 border-b-4 border-l-4`,
+    cursor: "nesw-resize",
+  },
+  { id: "w", position: "left-0 top-1/2", shape: `${bar} h-8 w-1`, cursor: "ew-resize" },
 ];
 
 interface CropperPreviewProps {
@@ -105,125 +134,121 @@ export default function CropperPreview({
   });
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="bg-muted/50 border-border text-muted-foreground rounded-xl border px-4 py-2.5 text-xs">
-        💡 Tip: Drag inside the box to move it, drag the handles to resize, or enter exact values in the sidebar.
-      </div>
-
-      <div
-        ref={containerRef}
-        className="relative flex h-125 w-full touch-none items-center justify-center overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 shadow-inner select-none"
+    <div className="flex w-full min-w-0 flex-col gap-6">
+      {/* Workspace card */}
+      <ToolCard
+        title={
+          <>
+            Crop <Accent>Workspace</Accent>
+          </>
+        }
+        pills={[
+          imageSize && crop ? `${Math.round(crop.width)} × ${Math.round(crop.height)} px` : "No image",
+          "Drag to move · handles to resize",
+        ]}
       >
-        {imageSrc && bounds && scale > 0 && crop ? (
-          <div className="relative" style={{ width: bounds.width * scale, height: bounds.height * scale }}>
-            <img
-              src={imageSrc}
-              alt={selectedImage?.name ?? "Image to crop"}
-              draggable={false}
-              className="pointer-events-none absolute max-w-none"
-              style={{
-                width: imageSize!.width * scale,
-                height: imageSize!.height * scale,
-                left: (bounds.width - imageSize!.width) * scale * 0.5,
-                top: (bounds.height - imageSize!.height) * scale * 0.5,
-                transform: `rotate(${rotation}deg)`,
-              }}
-            />
+        {/* No padding: the crop box scale is measured from the full canvas size */}
+        <PreviewArea ref={containerRef} className="touch-none p-0 select-none">
+          {imageSrc && bounds && scale > 0 && crop ? (
+            <div className="relative" style={{ width: bounds.width * scale, height: bounds.height * scale }}>
+              <img
+                src={imageSrc}
+                alt={selectedImage?.name ?? "Image to crop"}
+                draggable={false}
+                className="pointer-events-none absolute max-w-none"
+                style={{
+                  width: imageSize!.width * scale,
+                  height: imageSize!.height * scale,
+                  left: (bounds.width - imageSize!.width) * scale * 0.5,
+                  top: (bounds.height - imageSize!.height) * scale * 0.5,
+                  transform: `rotate(${rotation}deg)`,
+                }}
+              />
 
-            {/* Crop box: the huge shadow dims everything outside it */}
-            <div
-              className="absolute cursor-move border border-dashed border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]"
-              style={{
-                left: crop.x * scale,
-                top: crop.y * scale,
-                width: crop.width * scale,
-                height: crop.height * scale,
-              }}
-              {...dragProps("move")}
-            >
-              {handles.map((handle) => (
-                <div
-                  key={handle.id}
-                  className={`absolute z-10 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-neutral-300 bg-white shadow ${handle.className}`}
-                  style={{ cursor: handle.cursor }}
-                  {...dragProps(handle.id)}
-                />
-              ))}
-            </div>
-          </div>
-        ) : imageSrc ? (
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-neutral-700 border-t-neutral-300" />
-        ) : (
-          <div className="flex flex-col items-center justify-center p-8 text-center text-neutral-400">
-            <ImageIcon className="mb-3 h-12 w-12 opacity-40" />
-            <p className="text-sm font-medium">No image selected. Upload an image to start cropping.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Image Thumbnails Strip */}
-      {images.length > 0 && (
-        <div className="bg-card border-border flex items-center gap-3 overflow-x-auto rounded-xl border p-3">
-          {images.map((file, index) => {
-            const key = `${file.name}-${file.size}-${file.lastModified}`;
-            const url = previewUrls[key];
-            const isSelected = selectedImage === file;
-
-            return (
+              {/* Crop box: the huge shadow dims everything outside it */}
               <div
-                key={key}
-                className={`group relative flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 transition-all ${
-                  isSelected ? "border-primary scale-105 shadow-md" : "border-border hover:border-muted-foreground"
-                }`}
-                onClick={() => onSelectImage(file)}
+                className="absolute cursor-move border border-dashed border-white shadow-[0_0_0_9999px_rgba(14,14,16,0.55)]"
+                style={{
+                  left: crop.x * scale,
+                  top: crop.y * scale,
+                  width: crop.width * scale,
+                  height: crop.height * scale,
+                }}
+                {...dragProps("move")}
               >
-                {url ? (
-                  <img src={url} alt={file.name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="bg-muted h-full w-full animate-pulse" />
-                )}
-
-                <button
-                  type="button"
-                  aria-label={`Delete ${file.name}`}
-                  className="bg-background/80 hover:bg-destructive hover:text-destructive-foreground absolute top-1 right-1 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteImage(index);
-                  }}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
+                {handles.map((handle) => (
+                  // 24px invisible hit area centered on the edge, so the thin bars are easy to grab
+                  <div
+                    key={handle.id}
+                    className={cn(
+                      "absolute z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center",
+                      handle.position,
+                    )}
+                    style={{ cursor: handle.cursor }}
+                    {...dragProps(handle.id)}
+                  >
+                    <span className={handle.shape} />
+                  </div>
+                ))}
               </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Cropped Result Preview (if applied) */}
-      {croppedResult && (
-        <div className="bg-card border-border animate-in fade-in flex flex-col gap-4 rounded-xl border p-6 shadow-sm duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Cropped Output Preview</h3>
-              <p className="text-muted-foreground text-xs">
-                Dimensions: {croppedResult.width} × {croppedResult.height}px | Size:{" "}
-                {(croppedResult.size / 1024).toFixed(1)} KB
-              </p>
             </div>
-            <Button size="sm" onClick={onDownload} className="gap-2 font-semibold">
-              <Download className="h-4 w-4" /> Download Cropped Image
-            </Button>
-          </div>
-          <div className="flex items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 p-4">
+          ) : imageSrc ? (
+            <Spinner />
+          ) : (
+            <EmptyState
+              title="No image yet"
+              hint="Drop an image anywhere on this page, or use Upload Image in the panel."
+            />
+          )}
+        </PreviewArea>
+      </ToolCard>
+
+      <ImageThumbnails
+        images={images}
+        previewUrls={previewUrls}
+        selected={selectedImage}
+        onSelect={onSelectImage}
+        onDelete={onDeleteImage}
+      />
+
+      {/* Cropped result: always visible, same preview height as the workspace */}
+      <ToolCard
+        title={
+          <>
+            Your <Accent>Cropped</Accent> Image
+          </>
+        }
+        pills={
+          croppedResult
+            ? [`${croppedResult.width} × ${croppedResult.height} px`, `${(croppedResult.size / 1024).toFixed(1)} KB`]
+            : ["Not cropped yet"]
+        }
+        action={
+          <button
+            type="button"
+            onClick={onDownload}
+            disabled={!croppedResult}
+            className={cn(buttonVariants({ size: "lg" }), "h-11 rounded-full")}
+          >
+            <Download /> Download
+          </button>
+        }
+      >
+        <PreviewArea>
+          {croppedResult ? (
             <img
               src={croppedResult.url}
-              alt="Cropped Preview"
-              className="max-h-80 w-auto rounded object-contain shadow-lg"
+              alt="Cropped result"
+              className="animate-in fade-in max-h-full max-w-full object-contain shadow-[0_12px_32px_rgba(14,14,16,0.16)] duration-300"
             />
-          </div>
-        </div>
-      )}
+          ) : (
+            <EmptyState
+              title="Nothing cropped yet"
+              hint="Adjust the crop box, then press Crop Image to see the result here."
+            />
+          )}
+        </PreviewArea>
+      </ToolCard>
     </div>
   );
 }

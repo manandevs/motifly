@@ -1,23 +1,24 @@
 "use client";
 
-import React, { useRef } from "react";
-import { ChevronDown, Upload } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
+
 import { saveImages } from "@/lib/image-db";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { UploadDropzone } from "@/components/shared/upload-dropzone";
+import { NumberStepper, PillSelect, SettingsActions, SettingsGroup, SettingsPanel } from "@/components/tool/tool-ui";
 
 export type OutputFormat = "image/jpeg" | "image/webp" | "image/png";
 export interface ResizeOption {
   label: string;
   value: number;
 }
+
+const outputFormats: { label: string; value: OutputFormat }[] = [
+  { label: "JPEG", value: "image/jpeg" },
+  { label: "PNG", value: "image/png" },
+  { label: "WEBP", value: "image/webp" },
+];
 
 interface SettingsProps {
   quality: number;
@@ -27,11 +28,13 @@ interface SettingsProps {
   resize: ResizeOption;
   resizeOptions: ResizeOption[];
   onResizeChange: (o: ResizeOption) => void;
+  isCustomResize: boolean;
   customWidth: number;
   onCustomWidthChange: (w: number) => void;
   originalWidth: number;
   originalHeight: number;
   onDownload: () => void;
+  onReset: () => void;
   onUploadSuccess: (file: File) => void;
   disabled?: boolean;
 }
@@ -44,111 +47,68 @@ const Settings = ({
   resize,
   resizeOptions,
   onResizeChange,
+  isCustomResize,
   customWidth,
   onCustomWidthChange,
   originalWidth,
   originalHeight,
   onDownload,
+  onReset,
   onUploadSuccess,
   disabled,
 }: SettingsProps) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const fileArray = Array.from(files);
-      await saveImages(fileArray);
-      onUploadSuccess(fileArray[0]); // Set the first of the new batch to preview
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+  const handleFiles = async (files: File[]) => {
+    await saveImages(files);
+    onUploadSuccess(files[0]); // Set the first of the new batch to preview
   };
 
   return (
-    <div className="bg-background flex w-full flex-col gap-6 rounded-lg border p-6 shadow-sm">
-      <div className="flex flex-col gap-4 border-b pb-6">
-        <h3 className="text-muted-foreground text-sm font-medium">Add Images</h3>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          multiple
-          accept="image/*"
-          className="hidden"
-        />
-        <Button
-          variant="outline"
-          className="hover:bg-accent/50 flex h-auto w-full flex-col gap-2 border-2 border-dashed py-10 transition-all"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Upload className="text-primary h-6 w-6" />
-          <span className="font-semibold">Click to Upload</span>
-        </Button>
-      </div>
+    <SettingsPanel title="Compress" accent="Options" description="Set the quality, output format and size.">
+      <SettingsGroup title="Upload Image">
+        <UploadDropzone onFiles={handleFiles} className="h-44" />
+      </SettingsGroup>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium">
-            Quality: <span className="text-primary">{quality}%</span>
-          </h2>
-        </div>
+      <SettingsGroup title="Quality" value={`${quality}%`}>
         <Slider value={[quality]} onValueChange={(v) => onQualityChange(v[0])} min={5} max={100} step={1} />
-      </div>
+      </SettingsGroup>
 
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium">Output Format</h3>
-        <div className="grid grid-cols-3 gap-2">
-          {(["image/jpeg", "image/webp", "image/png"] as OutputFormat[]).map((f) => (
-            <Button
-              key={f}
-              size="sm"
-              variant={outputFormat === f ? "default" : "outline"}
-              onClick={() => onOutputFormatChange(f)}
-            >
-              {f.split("/")[1].toUpperCase()}
-            </Button>
-          ))}
-        </div>
-      </div>
+      <SettingsGroup title="Output Format">
+        <PillSelect options={outputFormats} value={outputFormat} onChange={onOutputFormatChange} />
+      </SettingsGroup>
 
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium">Resize (Width in px)</h3>
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-1/2 justify-between">
-                {resize.label} <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48">
-              {resizeOptions.map((o) => (
-                <DropdownMenuItem key={o.value} onClick={() => onResizeChange(o)}>
-                  {o.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <div className="w-1/2">
-            <Input
-              type="number"
-              placeholder="Width (px)"
-              value={customWidth || ""}
-              onChange={(e) => onCustomWidthChange(Number(e.target.value))}
-              className="h-10 text-xs"
-            />
-          </div>
+      <SettingsGroup title="Resize">
+        <PillSelect
+          columns={4}
+          options={resizeOptions.map((o) => ({ label: o.label, value: o.value }))}
+          // A typed custom width means none of the presets is active.
+          value={isCustomResize ? -1 : resize.value}
+          onChange={(value) => onResizeChange(resizeOptions.find((o) => o.value === value)!)}
+        />
+        <div className="mt-4">
+          <NumberStepper
+            label="Width (px)"
+            value={customWidth}
+            step={10}
+            disabled={!originalWidth}
+            onCommit={(w) => onCustomWidthChange(Math.max(1, Math.round(w)))}
+          />
         </div>
         {originalWidth > 0 && (
-          <p className="text-muted-foreground text-xs">
-            Original: {originalWidth} × {originalHeight}px (Height adjusts automatically)
+          <p className="mt-2 text-xs text-[#7a7a85]">
+            Original: {originalWidth} × {originalHeight} px. Height adjusts automatically.
           </p>
         )}
-      </div>
+      </SettingsGroup>
 
-      <Button className="mt-2 w-full" onClick={onDownload} disabled={disabled}>
-        Download Result
-      </Button>
-    </div>
+      <SettingsActions>
+        <Button size="lg" className="h-12 w-full rounded-full text-base" onClick={onDownload} disabled={disabled}>
+          <Download className="size-4.5" /> Download Image
+        </Button>
+        <Button variant="outline" onClick={onReset} className="h-10 rounded-full">
+          <RotateCcw /> Reset Settings
+        </Button>
+      </SettingsActions>
+    </SettingsPanel>
   );
 };
 

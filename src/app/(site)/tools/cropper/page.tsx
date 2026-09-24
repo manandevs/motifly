@@ -6,6 +6,7 @@ import CropperSettings, { AspectRatioOption, OutputFormat } from "@/components/c
 import { deleteImage, getImages, saveImages } from "@/lib/image-db";
 import { CropRect, Size, getCroppedImg, getMaxCrop, getRotatedSize, setCropField } from "@/lib/crop-image";
 import { toast } from "sonner";
+import { ToolHero, ToolLayout } from "@/components/tool/tool-ui";
 
 const aspectRatios: AspectRatioOption[] = [
   { label: "Free", value: undefined },
@@ -228,7 +229,7 @@ export default function CropperPage() {
   };
 
   return (
-    <main className="min-h-screen py-28" onDrop={handleDrop} onDragOver={handleDragOver}>
+    <main className="min-h-screen pb-28" onDrop={handleDrop} onDragOver={handleDragOver}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -236,59 +237,53 @@ export default function CropperPage() {
         }}
       />
 
-      <div className="mx-auto w-full max-w-7xl px-4">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Image Cropper</h1>
-          <p className="text-muted-foreground mt-2">
-            Crop, rotate, and resize your images instantly with precision pixel dimensions and aspect ratios.
-          </p>
-        </header>
+      <ToolHero
+        label="Image Cropper"
+        title="Crop Images to"
+        accent="Any Size"
+        description="Drag the box, pick a ratio or type exact pixels. Everything runs in your browser, so your images are never uploaded."
+      />
 
-        {/* Dual-Panel Workspace Layout */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Left Panel: Interactive Workspace / Canvas */}
-          <div className="lg:col-span-2">
-            <CropperPreview
-              imageSrc={selectedOriginalUrl}
-              imageSize={imageSize}
-              rotation={rotation}
-              aspectRatio={aspectRatio}
-              crop={crop}
-              onCropChange={setCrop}
-              images={images}
-              selectedImage={selectedImage}
-              onSelectImage={setSelectedImage}
-              onDeleteImage={handleDelete}
-              previewUrls={previewUrls}
-              croppedResult={croppedResult}
-              onDownload={handleDownload}
-            />
-          </div>
-
-          {/* Right Sidebar: Crop Options Panel */}
-          <div>
-            <CropperSettings
-              aspectRatio={aspectRatio}
-              aspectRatios={aspectRatios}
-              onAspectRatioChange={handleAspectRatioChange}
-              rotation={rotation}
-              onRotationChange={handleRotationChange}
-              outputFormat={outputFormat}
-              onOutputFormatChange={setOutputFormat}
-              quality={quality}
-              onQualityChange={setQuality}
-              crop={crop}
-              onCropFieldChange={handleCropFieldChange}
-              onApplyCrop={handleApplyCrop}
-              onReset={handleReset}
-              onDownload={handleDownload}
-              onUploadSuccess={handleUploadSuccess}
-              disabled={!imageSize}
-              hasResult={Boolean(croppedResult)}
-            />
-          </div>
-        </div>
-      </div>
+      <ToolLayout
+        main={
+          <CropperPreview
+            imageSrc={selectedOriginalUrl}
+            imageSize={imageSize}
+            rotation={rotation}
+            aspectRatio={aspectRatio}
+            crop={crop}
+            onCropChange={setCrop}
+            images={images}
+            selectedImage={selectedImage}
+            onSelectImage={setSelectedImage}
+            onDeleteImage={handleDelete}
+            previewUrls={previewUrls}
+            croppedResult={croppedResult}
+            onDownload={handleDownload}
+          />
+        }
+        panel={
+          <CropperSettings
+            aspectRatio={aspectRatio}
+            aspectRatios={aspectRatios}
+            onAspectRatioChange={handleAspectRatioChange}
+            rotation={rotation}
+            onRotationChange={handleRotationChange}
+            outputFormat={outputFormat}
+            onOutputFormatChange={setOutputFormat}
+            quality={quality}
+            onQualityChange={setQuality}
+            crop={crop}
+            onCropFieldChange={handleCropFieldChange}
+            onApplyCrop={handleApplyCrop}
+            onReset={handleReset}
+            onDownload={handleDownload}
+            onUploadSuccess={handleUploadSuccess}
+            disabled={!imageSize}
+            hasResult={Boolean(croppedResult)}
+          />
+        }
+      />
     </main>
   );
 }

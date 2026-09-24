@@ -3,9 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import Preview from "@/components/compressor/preview";
 import Settings, { OutputFormat, ResizeOption } from "@/components/compressor/settings";
-import Stats from "@/components/compressor/stats";
-import { deleteImage, getImages } from "@/lib/image-db";
-import ImageItem from "@/components/compressor/image-item";
+import { deleteImage, getImages, saveImages } from "@/lib/image-db";
+import { ImageThumbnails, ToolHero, ToolLayout } from "@/components/tool/tool-ui";
 
 const resizeOptions: ResizeOption[] = [
   { label: "Original", value: 100 },
@@ -210,6 +209,24 @@ export default function CompressorPage() {
     link.click();
   };
 
+  const handleReset = () => {
+    setQuality(75);
+    setOutputFormat("image/jpeg");
+    setResize(resizeOptions[0]);
+    setIsCustomResize(false);
+    setCustomWidth(originalDimensions.width);
+  };
+
+  // Accept images dropped anywhere on the page, like the cropper.
+  const handleDrop = async (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
+    if (files.length) {
+      await saveImages(files);
+      loadImagesFromDB(files[0]);
+    }
+  };
+
   const handleDelete = async (index: number) => {
     await deleteImage(index);
     const updatedImages = await getImages();
@@ -227,41 +244,43 @@ export default function CompressorPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-32">
+    <main className="min-h-screen pb-28" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="mb-8 grid gap-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <Preview
-            originalImage={selectedOriginalUrl}
-            compressedImage={compressedResult?.url}
-            originalSize={selectedImage?.size}
-            compressedSize={compressedResult?.size}
-            originalWidth={originalDimensions.width}
-            originalHeight={originalDimensions.height}
-            compressedWidth={compressedResult?.width}
-            compressedHeight={compressedResult?.height}
-            isCompressing={isCompressing}
-          />
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            {images.map((img, i) => {
-              const fileKey = `${img.name}-${img.size}-${img.lastModified}`;
-              return (
-                <ImageItem
-                  key={fileKey}
-                  index={i}
-                  image={img}
-                  previewUrl={previewUrls[fileKey] || ""}
-                  isSelected={selectedImage === img}
-                  onCompress={setSelectedImage}
+      <ToolHero
+        label="Image Compressor"
+        title="Compress Images"
+        accent="Instantly"
+        description="Pick a quality, a format and a size, and see the result straight away. Everything runs in your browser, so your images are never uploaded."
+      />
+
+      <ToolLayout
+        main={
+          <>
+            <Preview
+              originalImage={selectedOriginalUrl}
+              compressedImage={compressedResult?.url}
+              originalSize={selectedImage?.size}
+              compressedSize={compressedResult?.size}
+              originalWidth={originalDimensions.width}
+              originalHeight={originalDimensions.height}
+              compressedWidth={compressedResult?.width}
+              compressedHeight={compressedResult?.height}
+              isCompressing={isCompressing}
+              onDownload={handleDownload}
+              thumbnails={
+                <ImageThumbnails
+                  images={images}
+                  previewUrls={previewUrls}
+                  selected={selectedImage}
+                  onSelect={setSelectedImage}
                   onDelete={handleDelete}
                 />
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="space-y-6">
+              }
+            />
+          </>
+        }
+        panel={
           <Settings
             quality={quality}
             onQualityChange={setQuality}
@@ -270,28 +289,18 @@ export default function CompressorPage() {
             resize={resize}
             resizeOptions={resizeOptions}
             onResizeChange={handleResizeChange}
+            isCustomResize={isCustomResize}
             customWidth={customWidth}
             onCustomWidthChange={handleCustomWidthChange}
             originalWidth={originalDimensions.width}
             originalHeight={originalDimensions.height}
             onDownload={handleDownload}
+            onReset={handleReset}
             onUploadSuccess={loadImagesFromDB}
-            disabled={isCompressing || !selectedImage}
+            disabled={isCompressing || !compressedResult}
           />
-          <Stats
-            quality={quality}
-            outputFormat={outputFormat}
-            resize={resize}
-            originalSize={selectedImage?.size}
-            compressedSize={compressedResult?.size}
-            savings={
-              selectedImage && compressedResult
-                ? Math.round(((selectedImage.size - compressedResult.size) / selectedImage.size) * 100)
-                : 0
-            }
-          />
-        </div>
-      </div>
-    </div>
+        }
+      />
+    </main>
   );
 }
